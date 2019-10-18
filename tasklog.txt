@@ -1,2 +1,5 @@
-# 16.9.2019
-Data preprocessing: setting up conda envirionment, assigning cantons to entries
+# 16.10.2019
+Data preprocessing: set up conda envirionment, assigned cantons to entries, started to compute statistics for cantons
+
+# 17.10.2019
+Set up python server, added GeoJSON files to leaflet map, added basic layer control
