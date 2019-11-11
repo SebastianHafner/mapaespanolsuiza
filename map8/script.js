@@ -160,10 +160,17 @@ placeholder = new L.GeoJSON.AJAX('bildung.geojson',
 	{
 		pointToLayer: function(feature, latlng) {
 
-			var marker =  L.circleMarker(latlng, {
-				radius: 5,
+      var marker,
+          minMarkerSize = 4,
+          scaleFactor = 4,
+          markerSize = feature.properties.total / scaleFactor;
+
+      markerSize = Math.max(minMarkerSize,markerSize);
+
+      marker =  L.circleMarker(latlng, {
+		    radius: markerSize,
 				fillColor: colorsBildungTypes[feature.properties.type_abbr],
-				color: '#000000',
+			  color: '#000000',
 				weight: 1,
 				opacity: 1,
 				fillOpacity: 0.8
@@ -171,12 +178,11 @@ placeholder = new L.GeoJSON.AJAX('bildung.geojson',
 
 
 			// marker = L.marker(latlng, {icon: blueIcon});
-
+      console.log(feature);
 			var popup = ''.concat(
-				'<b>', feature.properties.Name, '</b>',
-				'<br>', feature.properties.Typ,
-				'<br>', 'Spanish students: ', feature.properties.Total,
-				'<br>', feature.properties.ID, ' (will be removed)'
+				'<b>', feature.properties.name, '</b>',
+				'<br>', feature.properties.typ,
+				'<br>', 'Spanish students: ', feature.properties.total
 			);
 			marker.bindPopup(popup, locationPopupOptions);
 
@@ -192,9 +198,42 @@ placeholder = new L.GeoJSON.AJAX('bildung.geojson',
 // other options: clustermouseover, clustermouseout
 bildungLayer.on('clusterclick', function(cluster) {
 
+  var markers,
+      marker,
+      name,
+      names = [],
+      popup,
+      popupContent = '',
+      i;
+
 	// first close all opened popups
 	map.closePopup();
 
+  // looping over all markers and collection all names of institutions
+  markers = cluster.layer.getAllChildMarkers();
+  for (i = 0; i < markers.length; i++) {
+    marker = markers[i];
+    names.push(marker.feature.properties.name);
+  };
+
+  // alphabetically sorting names and concatenating together
+  names.sort();
+  for (i = 0; i < names.length; i++) {
+    name = names[i];
+    if (!(name === null)) {
+      popupContent = popupContent + name + '<br>';
+    };
+  }
+  console.log(names);
+
+
+
+  popup = L.popup()
+		.setLatLng(cluster.layer.getLatLng())
+		.setContent(popupContent)
+    .openOn(map);
+
+  /*
 	// getting all markers belonging to cluster
 	var markers = cluster.layer.getAllChildMarkers();
 	console.log(markers);
@@ -220,7 +259,8 @@ bildungLayer.on('clusterclick', function(cluster) {
 
 	var childCount = cluster.layer._childCount;
 
-	// computing chart for cluster
+
+  // computing chart for cluster
 
 
 	// set the dimensions and margins of the graph
@@ -228,12 +268,13 @@ bildungLayer.on('clusterclick', function(cluster) {
 		height = 200
 		margin = 20
 
-	// The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
+  // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
 	var radius = Math.min(width, height) / 2 - margin
 
 	var div = d3.create("div");
 
-	// append the svg object to the div
+
+  // append the svg object to the div
 	var svg = div
 		.append("svg")
 		.attr("width", width)
@@ -241,8 +282,7 @@ bildungLayer.on('clusterclick', function(cluster) {
 		.append("g")
 		.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-
-	// Compute the position of each group on the pie:
+  // Compute the position of each group on the pie:
 	var pie = d3.pie()
 		.value(function(d) {return d.value; })
 	var data_ready = pie(d3.entries(data))
@@ -276,7 +316,11 @@ bildungLayer.on('clusterclick', function(cluster) {
 		.setLatLng(cluster.layer.getLatLng())
 		.setContent(popupContent)
         .openOn(map);
-})
+  */
+
+
+
+});
 
 // add bildung markers to map
 map.addLayer(bildungLayer);
