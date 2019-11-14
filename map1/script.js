@@ -12,188 +12,323 @@ var map1DataRequest = $.ajax({
 // making sure data request is complete before rendering map
 $.when(map1DataRequest).done(function() {
 
-  var data = map1DataRequest.responseJSON.data;
+    var data = map1DataRequest.responseJSON.data;
+    var country = 'Spanien';
+    console.log(data);
 
+    function restructureData(data) {
 
+        var dataRestructured = {},
+            countryData,
+            startYear = 1991,
+            endYear = 2018,
+            i,
+            j;
 
-  console.log(data);
+        // loop over all countries
+        for (i = 0; i < data.length; i++) {
 
-
-
-  var newData = data.map(function(entry, index){
-
-    var x = [],
-        y = [],
-        startYear = 1991,
-        endYear = 2018,
-        i;
-
-    for (i = startYear; i <= endYear; i++) {
-      x.push(i);
-      y.push(entry[i]);
+            countryData = [];
+            for (j = startYear; j <= endYear; j++) {
+                countryData.push({
+                    year: j,
+                    value: data[i][j]
+                });
+            };
+            dataRestructured[data[i].name] = countryData;
+        };
+        return dataRestructured;
     };
 
-    return {
-        label: entry.name,
-        x: x,
-        y: y
+
+    data = restructureData(data);
+    console.log(data);
+
+    plotCountry(data, country)
+
+
+    // change country selection
+    document
+      .querySelector('#basemaps')
+      .addEventListener('change', function (e) {
+        country = e.target.value;
+        plotCountry(data, country);
+      });
+
+  function plotCountry(data, country) {
+
+        var cdata = data[country],
+            startYear = cdata[0].year,
+            endYear = cdata[cdata.length-1].year;
+
+        console.log(cdata);
+
+
+        // set the dimensions and margins of the graph
+        var margin = {top: 10, right: 30, bottom: 30, left: 60},
+            width = 460 - margin.left - margin.right,
+            height = 400 - margin.top - margin.bottom;
+
+        // append the svg object to the body of the page
+        var svg = d3.select("#my_dataviz")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        //Read the data
+        d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/3_TwoNumOrdered_comma.csv",
+
+          // When reading the csv, I must format variables:
+          function(d){
+            return { date : d3.timeParse("%Y-%m-%d")(d.date), value : d.value }
+          },
+
+          // Now I can use this dataset:
+          function(data) {
+
+            // Add X axis --> it is a date format
+            var x = d3.scaleTime()
+              .domain(d3.extent(data, function(d) { return d.date; }))
+              .range([ 0, width ]);
+            svg.append("g")
+              .attr("transform", "translate(0," + height + ")")
+              .call(d3.axisBottom(x));
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+              .domain([0, d3.max(data, function(d) { return +d.value; })])
+              .range([ height, 0 ]);
+            svg.append("g")
+              .call(d3.axisLeft(y));
+
+            // Add the line
+            svg.append("path")
+              .datum(data)
+              .attr("fill", "none")
+              .attr("stroke", "steelblue")
+              .attr("stroke-width", 1.5)
+              .attr("d", d3.line()
+                .x(function(d) { return x(d.date) })
+                .y(function(d) { return y(d.value) })
+                )
+            console.log(data);
+        })
+
+        d3.data(cdata
+
     };
-  });
+/*
+        var width = 800;
+        var height = 500;
+        var margin = {left:20,right:20,top:40,bottom:40};
 
-  console.log(newData);
+        var div = d3.select("#chart")
+        var svg = div.append("svg")
+        .attr("width", width+margin.left+margin.right)
+        .attr("height", height+margin.top+margin.bottom);
+        var g = svg.append("g")
+        .attr("transform","translate("+[margin.left,margin.top]+")");
 
-  var data = [ { label: "Data Set 1",
-                 x: [0, 1, 2, 3, 4],
-                 y: [0, 1, 2, 3, 4] },
-               { label: "Data Set 2",
-                 x: [0, 1, 2, 3, 4],
-                 y: [0, 1, 4, 9, 16] } ] ;
-  var xy_chart = d3_xy_chart()
-      .width(960)
-      .height(500)
-      .xlabel("X Axis")
-      .ylabel("Y Axis") ;
-  var svg = d3.select("body").append("svg")
-      .datum(newData)
-      .call(xy_chart) ;
+        var y = d3.scaleLinear()
+        .domain([0, d3.max(cdata.y, function(d) { return d; }) ])
+        .range([height,0]);
 
-  function d3_xy_chart() {
-      var width = 640,
-          height = 480,
-          xlabel = "X Axis Label",
-          ylabel = "Y Axis Label" ;
+        var yAxis = d3.axisLeft()
+        .ticks(4)
+        .scale(y);
+        g.append("g").call(yAxis);
 
-      function chart(selection) {
-          selection.each(function(datasets) {
-              //
-              // Create the plot.
-              //
-              var margin = {top: 20, right: 80, bottom: 30, left: 50},
-                  innerwidth = width - margin.left - margin.right,
-                  innerheight = height - margin.top - margin.bottom ;
+        //d3.range(startYear,endYear,5)
+        var x = d3.scaleBand()
+        .domain(d3.range(endYear-startYear))
+        .range([0,width-20]);
 
-              var x_scale = d3.scale.linear()
-                  .range([0, innerwidth])
-                  .domain([ d3.min(datasets, function(d) { return d3.min(d.x); }),
-                            d3.max(datasets, function(d) { return d3.max(d.x); }) ]) ;
+        var xAxis = d3.axisBottom()
+        .scale(x)
+        .tickFormat(function(d) { return startYear+d; });
 
-              var y_scale = d3.scale.linear()
-                  .range([innerheight, 0])
-                  .domain([ d3.min(datasets, function(d) { return d3.min(d.y); }),
-                            d3.max(datasets, function(d) { return d3.max(d.y); }) ]) ;
 
-              var color_scale = d3.scale.category10()
-                  .domain(d3.range(datasets.length)) ;
+        g.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .selectAll("text")
+          .attr("text-anchor","end")
+          .attr("transform","rotate(-90)translate(-12,-15)")
 
-              var x_axis = d3.svg.axis()
-                  .scale(x_scale)
-                  .orient("bottom") ;
 
-              var y_axis = d3.svg.axis()
-                  .scale(y_scale)
-                  .orient("left") ;
+                  // Add the line
+        svg.append("path")
+          .datum(cdata)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.5)
+          .attr("d", d3.line()
+            .x(function(d) { return x(d.x) })
+            .y(function(d) { return y(d.y) })
+            )
 
-              var x_grid = d3.svg.axis()
-                  .scale(x_scale)
-                  .orient("bottom")
-                  .tickSize(-innerheight)
-                  .tickFormat("") ;
 
-              var y_grid = d3.svg.axis()
-                  .scale(y_scale)
-                  .orient("left")
-                  .tickSize(-innerwidth)
-                  .tickFormat("") ;
 
-              var draw_line = d3.svg.line()
-                  .interpolate("basis")
-                  .x(function(d) { return x_scale(d[0]); })
-                  .y(function(d) { return y_scale(d[1]); }) ;
+        var title = svg.append("text")
+        .style("font-size", "20px")
+        .text(cdata.label)
+        .attr("x", width/2 + margin.left)
+        .attr("y", 30)
+        .attr("text-anchor","middle");
 
-              var svg = d3.select(this)
-                  .attr("width", width)
-                  .attr("height", height)
-                  .append("g")
-                  .attr("transform", "translate(" + margin.left + "," + margin.top + ")") ;
 
-              svg.append("g")
-                  .attr("class", "x grid")
-                  .attr("transform", "translate(0," + innerheight + ")")
-                  .call(x_grid) ;
+    };
+*/
+/*
+var xy_chart = d3_xy_chart()
+    .width(960)
+    .height(500)
+    .xlabel("X Axis")
+    .ylabel("Y Axis") ;
+var svg = d3.select("body").append("svg")
+    .datum(data)
+    .call(xy_chart) ;
 
-              svg.append("g")
-                  .attr("class", "y grid")
-                  .call(y_grid) ;
+function d3_xy_chart() {
+    var width = 640,
+        height = 480,
+        xlabel = "X Axis Label",
+        ylabel = "Y Axis Label" ;
 
-              svg.append("g")
-                  .attr("class", "x axis")
-                  .attr("transform", "translate(0," + innerheight + ")")
-                  .call(x_axis)
-                  .append("text")
-                  .attr("dy", "-.71em")
-                  .attr("x", innerwidth)
-                  .style("text-anchor", "end")
-                  .text(xlabel) ;
+    function chart(selection) {
+        selection.each(function(datasets) {
+            //
+            // Create the plot.
+            //
+            var margin = {top: 20, right: 80, bottom: 30, left: 50},
+                innerwidth = width - margin.left - margin.right,
+                innerheight = height - margin.top - margin.bottom ;
 
-              svg.append("g")
-                  .attr("class", "y axis")
-                  .call(y_axis)
-                  .append("text")
-                  .attr("transform", "rotate(-90)")
-                  .attr("y", 6)
-                  .attr("dy", "0.71em")
-                  .style("text-anchor", "end")
-                  .text(ylabel) ;
+            var x_scale = d3.scale.linear()
+                .range([0, innerwidth])
+                .domain([ d3.min(datasets, function(d) { return d3.min(d.x); }),
+                          d3.max(datasets, function(d) { return d3.max(d.x); }) ]) ;
 
-              var data_lines = svg.selectAll(".d3_xy_chart_line")
-                  .data(datasets.map(function(d) {return d3.zip(d.x, d.y);}))
-                  .enter().append("g")
-                  .attr("class", "d3_xy_chart_line") ;
+            var y_scale = d3.scale.linear()
+                .range([innerheight, 0])
+                .domain([ d3.min(datasets, function(d) { return d3.min(d.y); }),
+                          d3.max(datasets, function(d) { return d3.max(d.y); }) ]) ;
 
-              data_lines.append("path")
-                  .attr("class", "line")
-                  .attr("d", function(d) {return draw_line(d); })
-                  .attr("stroke", function(_, i) {return color_scale(i);}) ;
+            var color_scale = d3.scale.category10()
+                .domain(d3.range(datasets.length)) ;
 
-              data_lines.append("text")
-                  .datum(function(d, i) { return {name: datasets[i].label, final: d[d.length-1]}; })
-                  .attr("transform", function(d) {
-                      return ( "translate(" + x_scale(d.final[0]) + "," +
-                               y_scale(d.final[1]) + ")" ) ; })
-                  .attr("x", 3)
-                  .attr("dy", ".35em")
-                  .attr("fill", function(_, i) { return color_scale(i); })
-                  .text(function(d) { return d.name; }) ;
+            var x_axis = d3.svg.axis()
+                .scale(x_scale)
+                .orient("bottom") ;
 
-          }) ;
-      }
+            var y_axis = d3.svg.axis()
+                .scale(y_scale)
+                .orient("left") ;
 
-      chart.width = function(value) {
-          if (!arguments.length) return width;
-          width = value;
-          return chart;
-      };
+            var x_grid = d3.svg.axis()
+                .scale(x_scale)
+                .orient("bottom")
+                .tickSize(-innerheight)
+                .tickFormat("") ;
 
-      chart.height = function(value) {
-          if (!arguments.length) return height;
-          height = value;
-          return chart;
-      };
+            var y_grid = d3.svg.axis()
+                .scale(y_scale)
+                .orient("left")
+                .tickSize(-innerwidth)
+                .tickFormat("") ;
 
-      chart.xlabel = function(value) {
-          if(!arguments.length) return xlabel ;
-          xlabel = value ;
-          return chart ;
-      } ;
+            var draw_line = d3.svg.line()
+                .interpolate("basis")
+                .x(function(d) { return x_scale(d[0]); })
+                .y(function(d) { return y_scale(d[1]); }) ;
 
-      chart.ylabel = function(value) {
-          if(!arguments.length) return ylabel ;
-          ylabel = value ;
-          return chart ;
-      } ;
+            var svg = d3.select(this)
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")") ;
 
-      return chart;
-  }
+            svg.append("g")
+                .attr("class", "x grid")
+                .attr("transform", "translate(0," + innerheight + ")")
+                .call(x_grid) ;
+
+            svg.append("g")
+                .attr("class", "y grid")
+                .call(y_grid) ;
+
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + innerheight + ")")
+                .call(x_axis)
+                .append("text")
+                .attr("dy", "-.71em")
+                .attr("x", innerwidth)
+                .style("text-anchor", "end")
+                .text(xlabel) ;
+
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(y_axis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", "0.71em")
+                .style("text-anchor", "end")
+                .text(ylabel) ;
+
+            var data_lines = svg.selectAll(".d3_xy_chart_line")
+                .data(datasets.map(function(d) {return d3.zip(d.x, d.y);}))
+                .enter().append("g")
+                .attr("class", "d3_xy_chart_line") ;
+
+            data_lines.append("path")
+                .attr("class", "line")
+                .attr("d", function(d) {return draw_line(d); })
+                .attr("stroke", function(_, i) {return color_scale(i);}) ;
+
+            data_lines.append("text")
+                .datum(function(d, i) { return {name: datasets[i].label, final: d[d.length-1]}; })
+                .attr("transform", function(d) {
+                    return ( "translate(" + x_scale(d.final[0]) + "," +
+                             y_scale(d.final[1]) + ")" ) ; })
+                .attr("x", 3)
+                .attr("dy", ".35em")
+                .attr("fill", function(_, i) { return color_scale(i); })
+                .text(function(d) { return d.name; }) ;
+
+        }) ;
+    }
+
+    chart.width = function(value) {
+        if (!arguments.length) return width;
+        width = value;
+        return chart;
+    };
+
+    chart.height = function(value) {
+        if (!arguments.length) return height;
+        height = value;
+        return chart;
+    };
+
+    chart.xlabel = function(value) {
+        if(!arguments.length) return xlabel ;
+        xlabel = value ;
+        return chart ;
+    } ;
+
+    chart.ylabel = function(value) {
+        if(!arguments.length) return ylabel ;
+        ylabel = value ;
+        return chart ;
+    } ;
+
+    return chart;
+}
 
 
 
@@ -297,6 +432,9 @@ $.when(map1DataRequest).done(function() {
             .call(yAxis);
 
     });
+
+*/
+
 
 
 });
