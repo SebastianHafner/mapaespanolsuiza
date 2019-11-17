@@ -27,13 +27,17 @@
 
 			#basemaps-wrapper {
 				position: absolute;
-				top: 20px;
-				right: 100px;
+				top: 30px;
+				left: 150px;
 				background: white;
 				padding: 10px;
 			}
 			#basemaps {
 				margin-bottom: 5px;
+			}
+
+			.multiselectOptions {
+
 			}
 
 			.line {
@@ -42,20 +46,7 @@
 			  stroke-width: 2px;
 			}
 
-			body { font: 12px Arial;}
 
-			path {
-			    stroke: grey;
-			    stroke-width: 2;
-			    fill: none;
-			}
-
-			.axis path,
-			.axis line {
-			    fill: none;
-			    stroke: grey;
-			    stroke-width: 1;
-			}
 
 		</style>
 
@@ -66,29 +57,9 @@
 
 		<div id="chart"></div>
 
-		<div id="my_dataviz"></div>
+
 		<div id="basemaps-wrapper" class="leaflet-bar">
-			<select id="basemaps">
-				<option value="Spanien">Spanien</option>
-				<option value="Argentinien">Argentinien</option>
-				<option value="Chile">Chile</option>
-				<option value="Costa Rica">Costa Rica</option>
-				<option value="Dominikanische Republik">Dominikanische Republik</option>
-				<option value="Ecuador">Ecuador</option>
-				<option value="El Salvador">El Salvador</option>
-				<option value="Guatemala">Guatemala</option>
-				<option value="Honduras">Honduras</option>
-				<option value="Kolumbien">Kolumbien</option>
-				<option value="Kuba">Kuba</option>
-				<option value="Mexiko">Mexiko</option>
-				<option value="Nicaragua">Nicaragua</option>
-				<option value="Panama">Panama</option>
-				<option value="Paraguay">Paraguay</option>
-				<option value="Peru">Peru</option>
-				<option value="Uruguay">Uruguay</option>
-				<option value="Venezuela">Venezuela</option>
-			</select>
-		</div>
+
 
 
 		<select id="multiSelect" class="js-example-basic-multiple" name="states[]" multiple="multiple">
@@ -111,7 +82,9 @@
 			<option value="Uruguay">Uruguay</option>
 			<option value="Venezuela">Venezuela</option>
 		</select>
+		</div>
 
+		<script src="flags.js"></script>
 		<script src="script.js"></script>
 	</body>
 

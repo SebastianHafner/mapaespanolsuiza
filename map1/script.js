@@ -13,45 +13,66 @@ var map1DataRequest = $.ajax({
 $.when(map1DataRequest).done(function() {
 
     var data = map1DataRequest.responseJSON.data,
-        oldSelected = ['Spanien'],
-        newSelected = oldSelected;
+        i;
 
 
     data = restructureData(data);
     console.log(data);
 
 
-    $("#multiSelect").select2();
+
+    $("#multiSelect").select2({
+        templateSelection: formatSelections,
+        templateResult: function(country) { return country.text; },
+    });
+
+
+
+    function formatSelections(country) {
+
+        var $country = $(
+            '<span class=multiselectOptions style="color:' +
+            color(country.text) + '">' + country.text + '</span>');
+        return $country;
+        /*
+        var $country = $(
+          '<span><img src="' + urlFlags[country.text] + ' class="img-flag" /> ' + country.text + '</span>'
+        );
+        */
+
+
+    };
+
+
 
     $('#multiSelect').on('change', function (e) {
         var options = e.currentTarget.selectedOptions,
             i;
 
-        // update new selected countries
-        newSelected = [];
-        for (i = 0; i < options.length; i++) {
-            newSelected.push(options[i].label);
-        };
-        console.log(oldSelected, newSelected);
-        updateChart()
+        // de-select all countries
+        Object.keys(data).forEach(function(country) {
+            data[country].active = false
+        });
 
-        oldSelected = newSelected;
+        // select countries according to multi select
+        for (i = 0; i < options.length; i++) {
+            data[options[i].label].active = true;
+        };
+
+        printSelectedCountries(data);
+        updateCountrySelection(data)
+
     });
 
-    // change country selection
-    document
-      .querySelector('#basemaps')
-      .addEventListener('change', function (e) {
-        country = e.target.value;
-        updateChart();
-      });
+
+
+
+
 
       // set the dimensions and margins of the graph
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    var margin = {top: 20, right: 20, bottom: 100, left: 100},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
-
-
 
     // append the svg obgect to the body of the page
     // appends a 'group' element to 'svg'
@@ -65,19 +86,23 @@ $.when(map1DataRequest).done(function() {
 
 
 
+
+
+    // .domain(d3.extent(data[oldSelected[0]], function(d) { return d.date; }))
+
     // set the ranges
     var xScale = d3.scaleTime()
-        .domain(d3.extent(data[oldSelected[0]], function(d) { return d.date; }))
+        .domain(d3.extent(data.Spanien.data, function(d) { return d.date; }))
         .range([0, width]);
 
-
+    // d3.max(data[oldSelected[0]], function(d) { return d.value; })
     var yScale = d3.scaleLinear()
-        .domain([0, d3.max(data[oldSelected[0]], function(d) { return d.value; })])
+        .domain([0, 0])
         .range([height, 0]);
 
 
     // Define the axes
-    var xAxis = d3.axisBottom().scale(xScale).ticks(5);
+    var xAxis = d3.axisBottom().scale(xScale).ticks(10);
     var yAxis = d3.axisLeft().scale(yScale).ticks(5);
 
 
@@ -86,40 +111,59 @@ $.when(map1DataRequest).done(function() {
         .x(function(d) { return xScale(d.date); })
         .y(function(d) { return yScale(d.value); });
 
+    var color = d3.scale.category10();
 
-    // Add the valueline path.
-    svg.append("path")
-        .attr("class", "line")
-        .attr("d", valueline(data[oldSelected[0]]));
+    Object.keys(data).forEach(function(country) {
+        // Add the valueline path.
+        svg.append("path")
+            .attr("class", "line")
+            .attr("d", valueline(data[country].data))
+            .style("stroke", color(country))
+            .style("opacity", 0)
+            .attr("id", 'tag' + data[country].id);
+    });
+
 
     // Add the X Axis
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
+        .style("font-size", "16px")
         .call(xAxis);
 
     // Add the Y Axis
     svg.append("g")
         .attr("class", "y axis")
+        .style("font-size", "16px")
         .call(yAxis);
 
 
-    function updateChart() {
+    // text label for the x axis
+    svg.append("text")
+        .attr("transform",
+              "translate(" + (width/2) + " ," +
+                             (height + margin.top + 30) + ")")
+        .style("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("Year");
 
-        console.log('selected countries', newSelected);
-        console.log('changing to ' + newSelected[0]);
+    // text label for the y axis
+    svg.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 10 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .style("font-size", "16px")
+        .text("n Immigrants");
 
-        var cdata = data[newSelected[0]],
-            selectedData = [],
-            i,
+
+
+    function updateCountrySelection(data) {
+
+
+        var i,
+            opacity;
             yMax = 0;
-
-
-        for (i = 0; i < newSelected.length; i++) {
-            selectedData.push(data[newSelected[i]]);
-        };
-
-        console.log(selectedData);
-
 
         // Select the section we want to apply our changes to
         var svg = d3.select("#chart").transition();
@@ -128,46 +172,37 @@ $.when(map1DataRequest).done(function() {
         var t = d3.transition()
             .duration(750)
 
-
-        // changing y axis
-        for (i = 0; i < selectedData.length; i++) {
-            var countryMax = d3.max(selectedData[i], function(d) { return d.value; });
-            yMax = countryMax > yMax ? countryMax : yMax;
-        };
-        console.log('maxvalue', yMax);
+        // updating range of y axis
+        Object.keys(data).forEach(function(country) {
+            if (data[country].active) {
+                yMax = Math.max(yMax, d3.max(data[country].data, function (d) { return d.value;} ));
+            };
+        });
+        console.log(yMax);
 
         yScale = d3.scaleLinear()
             .domain([0, yMax])
             .range([height, 0]);
 
-        svg.select(".y") // change the y axis
+        svg.select(".y")
             .transition(t)
             .call(yAxis.scale(yScale));
 
 
-        // updating still present classes
+        // updating selection by adjusting opacities of lines
+        Object.keys(data).forEach(function(country) {
 
+            opacity = data[country].active ? 1 : 0;
 
-        // Make the changes
-        svg.select(".line")   // change the line
-            .transition(t)
-            .attr("d", valueline(cdata));
-
-
-        svg = d3.select("#chart");
-        for (i = 0; i < selectedData.length; i++) {
-            // Add the valueline path.
-            console.log(i);
-            svg.append("path")
-                .attr("class", "line" + i)
-                .attr("d", valueline(selectedData[i]));
-        };
-
+            d3.select('#tag' + data[country].id)
+                .transition().duration(100)
+                .attr('d', valueline(data[country].data))
+                .style("opacity", opacity);
+        });
 
 
     };
 
-    //    draw(data, country);
 
 
     function restructureData(data) {
@@ -190,9 +225,25 @@ $.when(map1DataRequest).done(function() {
                     value: data[i][year]
                 });
             };
-            dataRestructured[data[i].name] = countryData;
+
+            dataRestructured[data[i].name] = {
+                data: countryData,
+                active: false,
+                id: 'country' + i,
+            };
         };
         return dataRestructured;
+    };
+
+    // just for debugging
+    function printSelectedCountries(data) {
+        var str = ''
+        Object.keys(data).forEach(function(country) {
+            if (data[country].active) {
+                str += country + ' ';
+            }
+        });
+        console.log(str);
     };
 
 });
