@@ -30,15 +30,15 @@ $.when(map1DataRequest).done(function() {
 
     function formatSelections(country) {
 
+        var flagID = data[country.text].code;
+
         var $country = $(
-            '<span class=multiselectOptions style="color:' +
-            color(country.text) + '">' + country.text + '</span>');
-        return $country;
-        /*
-        var $country = $(
-          '<span><img src="' + urlFlags[country.text] + ' class="img-flag" /> ' + country.text + '</span>'
+            '<span class="flag-icon flag-icon-' + flagID +
+            '"></span><span class=multiselectOptions style="color:' +
+            color(country.text) + '"> ' + country.text + '</span>'
         );
-        */
+
+        return $country;
 
 
     };
@@ -111,7 +111,7 @@ $.when(map1DataRequest).done(function() {
         .x(function(d) { return xScale(d.date); })
         .y(function(d) { return yScale(d.value); });
 
-    var color = d3.scale.category10();
+    var color = d3.scale.category20();
 
     Object.keys(data).forEach(function(country) {
         // Add the valueline path.
@@ -230,6 +230,7 @@ $.when(map1DataRequest).done(function() {
                 data: countryData,
                 active: false,
                 id: 'country' + i,
+                code: data[i].code,
             };
         };
         return dataRestructured;
