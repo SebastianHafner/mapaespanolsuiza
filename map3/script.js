@@ -30,7 +30,7 @@ $.when(map3DataRequest).done(function() {
       marker.bindPopup(popup);
       return marker;
     }
-  })
+    });
 
 
   uniMarkers.addTo(map3);
