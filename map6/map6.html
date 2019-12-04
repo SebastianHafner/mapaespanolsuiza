@@ -16,12 +16,12 @@
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.3/css/flag-icon.css">
 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
 
         <!--  jQuery v3.0.0-beta1 -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
 
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js'></script>
 
 
         <!-- JS Pluging -->
@@ -779,6 +779,7 @@
 
                 record = data.features[i].properties;
                 // console.log(record);
+				record.countryName = record.country;
                 record.country = '<span class="flag-icon flag-icon-' +
                     record.code + '"></span><span> ' + record.country +
                     '</span>';
@@ -794,6 +795,8 @@
 
                 // creating unique id
                 id = record.code + '_' + record.institution;
+				// var markerURL = 'https://image.flaticon.com/icons/svg/149/149060.svg'
+				// var markerImage = '<img src="' + markerURL + '">'
 
                 // creating link to map
                 record.location = '<div id="' + id +
@@ -801,6 +804,8 @@
                     '<span class="popuptext" id="_' + id +
                     '"><div id="' + 'map_' + id +
                     '" class="tableMap"></div></span></div>';
+
+				console.log(L.Icon.Default.imagePath);
 
                 data.features[i].properties.id = id;
 
@@ -818,9 +823,55 @@
 
 
 
-            // setting up new map2
-            var map6 = setupMap('map6');
+            // setting up new map
 
+			// setting up base layer of map
+			var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+				name: 'tileLayer',
+				maxZoom: 19,
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
+			});
+
+			// setting default map view
+			var defaultMapCenter = [46.80, 8.35];
+			var defaultMapZoom = 8;
+
+			// initializing map
+			var map6 = L.map('map6', {
+				layers: tileLayer,
+				center: defaultMapCenter,
+				zoom: defaultMapZoom,
+				// zoomControl: false,
+				touchZoom: true,
+				// setting zoom restrictions
+				maxZoom: 18,
+				minZoom: defaultMapZoom
+			});
+
+			// setting panning restrictions
+			var bounds = map6.getBounds();
+			// map.setMaxBounds(bounds);
+			// map.on('drag', function() {
+			  // map.panInsideBounds(bounds, { animate: false });
+			// });
+
+			// adding tyle layer to our map
+			tileLayer.addTo(map6);
+
+			// adding legend to map
+			L.control.scale({imperial: false}).addTo(map6);
+
+			/*
+			var greenIcon = L.icon({
+			    iconUrl: 'https://image.flaticon.com/icons/svg/660/660623.svg',
+
+			    iconSize:     [38, 95], // size of the icon
+			    shadowSize:   [50, 64], // size of the shadow
+			    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+			    shadowAnchor: [4, 62],  // the same for the shadow
+			    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+			});
+			*/
 
 
             // Add requested external GeoJSON to map
@@ -828,9 +879,16 @@
                 pointToLayer: function(feature, latlng) {
                     var location = L.latLng(feature.x, feature.x);
 
-
+					// var marker = L.marker(latlng, {icon: greenIcon});
                     var marker =  L.marker(latlng);
-                    var popup = feature.properties.address;
+
+					var popup = ''.concat(
+						'<b>', feature.properties.name, '</b>',
+						'<br>', feature.properties.institution + ' ' + feature.properties.countryName,
+						'<br>', feature.properties.address
+					);
+
+                    // var popup = feature.properties.address;
 
                     marker.bindPopup(popup);
 
@@ -849,7 +907,16 @@
                     if (marker.feature.properties.id == id) {
                         console.log(marker);
                         marker.openPopup();
-                        // map6.panTo(marker.getLatLng());
+						var latlng = L.latLng(47.377244, 8.538258);
+						// map6.flyTo(defaultMapCenter, defaultMapZoom, { duration: 0, });
+						map6.setView(defaultMapCenter, defaultMapZoom);
+
+						setTimeout(function (){
+							map6.flyTo(marker.getLatLng(), 14, { duration: 4, });
+
+						}, 800); // How long do you want the delay to be (in milliseconds)?
+
+                        // map6.panTo(latlng);
                     }
 
 
@@ -860,53 +927,6 @@
 
 
             }
-
-
-
-
-
-            // sets up a map of switzerland
-            function setupMap(div) {
-
-                // setting up base layer of map
-                var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                    name: 'tileLayer',
-                    maxZoom: 19,
-                	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
-                });
-
-                // setting default map view
-                var defaultMapCenter = [46.80, 8.35];
-                var defaultMapZoom = 8;
-                var prevMapZoom = defaultMapZoom;
-
-                // initializing map
-                var map = L.map(div, {
-                layers: tileLayer,
-                center: defaultMapCenter,
-                zoom: defaultMapZoom,
-                zoomControl: false,
-                touchZoom: true,
-                // setting zoom restrictions
-                maxZoom: 18,
-                minZoom: defaultMapZoom
-                });
-
-                // setting panning restrictions
-                var bounds = map.getBounds();
-                map.setMaxBounds(bounds);
-                map.on('drag', function() {
-                  map.panInsideBounds(bounds, { animate: false });
-                });
-
-                // adding tyle layer to our map
-                tileLayer.addTo(map);
-
-                // adding legend to map
-                L.control.scale({imperial: false}).addTo(map);
-
-                return map;
-            };
 
 
         </script>
