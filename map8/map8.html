@@ -69,6 +69,20 @@
 }
 
 
+.cluster-legend {
+	height: 15px;
+	width: 15px;
+	background-color: #ffffff;
+	border-radius: 50%;
+	display: inline-block;
+	border: 1px solid #000000;
+}
+
+.cluster-legend-text {
+	text-align: center;
+	transform: translate(-0%, -10%);
+}
+
 
 .dot {
   height: 10px;
@@ -4530,15 +4544,16 @@ legendBildung.onAdd = function (map) {
 		// labels = ['<strong>Bildung Types</strong>'],
 		labels = [],
 		categories = Object.keys(colorsBildungTypes);
-
+	div.innerHTML += '<div class="cluster-legend"><div class="cluster-legend-text">k</div></div> Cluster of k Sprachzentren<br>';
 	for (var i = 0; i < categories.length; i++) {
 		var key = categories[i];
-		div.innerHTML += labels.push(
+		labels.push(
 			'<div class="dot" style="background:' + colorsBildungTypes[key] + '"></div> ' + (key ? abbr2full[key] : '+')
 		);
 
 	}
-	div.innerHTML = labels.join('<br>');
+	div.innerHTML += labels.join('<br>');
+
 	return div;
 };
 legendBildung.addTo(map);
@@ -4626,6 +4641,7 @@ map.addLayer(bildungLayer);
 
 
 L.control.scale({imperial: false}).addTo(map);
+
 
 
 </script>
