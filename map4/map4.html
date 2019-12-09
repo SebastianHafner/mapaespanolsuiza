@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.0/css/ion.rangeSlider.min.css"/>
+
+
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js'></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.0/js/ion.rangeSlider.min.js"></script>
+
+
+		<style>
+
+			.content-wrapper {
+
+			}
+
+			#map4 {
+				width: 900px;
+				height: 600px;
+			}
+
+			.slider-wrapper {
+				width: 98%;
+			}
+
+			.info {
+			    padding: 6px 8px;
+			    font: 14px/16px Arial, Helvetica, sans-serif;
+			    background: white;
+			    background: rgba(255, 255, 255, 1);
+			    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+			    border-radius: 5px;
+			}
+			.info h4 {
+			    margin: 0 0 5px;
+			    color: #777;
+			}
+			.legend {
+			    text-align: left;
+			    line-height: 18px;
+			    color: #555;
+			}
+			.legend i {
+			    width: 18px;
+			    height: 18px;
+			    float: left;
+			    margin-right: 8px;
+			    opacity: 1;
+			}
+			.legend .colorcircle {
+			    border-radius: 50%;
+			    width: 15px;
+			    height: 15px;
+			    margin-top: 0px;
+			}
+			.legend .circlepadding {
+			    border-radius: 50%;
+			    margin-top: 0px;
+			    background: rgba(255, 255, 255, 0.8);
+			}
+
+
+
+
+		</style>
+
+
+	</head>
+
+
+
+
+	<body>
+
+
+
+		<div class="content-wrapper">
+		<div id="map4"></div>
+		<div class="slider-wrapper">
+		<input id="timeSlider" type="text" class="js-range-slider" name="my_range" value="" />
+		</div>
+		</div>
+
+
+		<script>
+
+			var data = {
+		   "type":"FeatureCollection",
+		   "features":[
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"centro de idiomas UZH y ETH",
+		            "2009":1182,
+		            "2010":1370,
+		            "2011":1449,
+		            "2012":1559,
+		            "2013":1471,
+		            "2014":1468,
+		            "2015":935,
+		            "2016":953,
+		            "2017":939,
+		            "2018":929
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               8.548851,
+		               47.374604
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"centro de idiomas de la HSLU",
+		            "2009":0,
+		            "2010":0,
+		            "2011":218,
+		            "2012":251,
+		            "2013":215,
+		            "2014":199,
+		            "2015":202,
+		            "2016":204,
+		            "2017":224,
+		            "2018":188
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               8.314852,
+		               47.046667
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"centro de idiomas de la UniBas",
+		            "2009":257,
+		            "2010":269,
+		            "2011":301,
+		            "2012":331,
+		            "2013":356,
+		            "2014":373,
+		            "2015":483,
+		            "2016":502,
+		            "2017":425,
+		            "2018":437
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               7.583869,
+		               47.558528
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"centro de idiomas de la UNIL",
+		            "2009":402,
+		            "2010":402,
+		            "2011":420,
+		            "2012":484,
+		            "2013":455,
+		            "2014":483,
+		            "2015":482,
+		            "2016":449,
+		            "2017":464,
+		            "2018":401
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               6.584301426,
+		               46.52366542
+		            ]
+		         }
+		      }
+		   ]
+	   	};
+		// time series slider to select the year to visualize on the map
+		var startYear = 2009, endYear = 2018;
+		var currYear = startYear;
+
+
+
+
+		//calculate radius so that resulting circles will be proportional by area
+		function getRadius(y) {
+		    r = Math.sqrt(y / Math.PI)
+			r = r * 2;
+		    return r;
+		}
+
+
+		// function to return style for circle marker
+		function getMarkerStyle(size) {
+		  return {
+			  radius: getRadius(size),
+			  fillColor: '#006CFA',
+			  color: '#000000',
+			  weight: 1,
+			  opacity: 1,
+			  fillOpacity: 0.8
+		  };
+		};
+
+
+		// setting up new map2
+		var map4 = setupMap('map4');
+
+		var legendControl = getLegendControl('my_dataviz','Number of students');
+		legendControl.addTo(map4);
+		addSizeLegend('#my_dataviz')
+
+
+
+
+		// Add requested external GeoJSON to map
+		var centerMarkers = L.geoJson(data, {
+		  pointToLayer: function(feature, latlng) {
+				var marker =  L.circleMarker(latlng, getMarkerStyle(10));
+				var popup = chart(feature);
+				// console.log(popup);
+				marker.bindPopup(popup);
+				return marker;
+		  	}
+		});
+
+
+		centerMarkers.addTo(map4);
+
+
+
+		updateMarkers(currYear);
+
+		var $d = $("#timeSlider");
+
+		$d.ionRangeSlider({
+		  skin: "round",
+		  min: startYear,
+		  max: endYear,
+		  from: currYear,
+		  grid: true,
+		  grid_num: 9,
+		  prettify: function(year) { return year; }
+		});
+
+
+		$d.on("change", function () {
+		  var $inp = $(this);
+		  var currYear = $inp.prop("value"); // reading input value
+		  updateMarkers(currYear);
+		});
+
+
+		// function to update the marker sizes according to number of students
+		// of input year
+		function updateMarkers(year) {
+		  // console.log('updating marker to year ' + year);
+		  centerMarkers.eachLayer(function (e) {
+			var nStudents = e.feature.properties[year];
+			// console.log(nStudents);
+			e.setStyle(getMarkerStyle(nStudents));
+		  });
+		}
+
+		function chart(feature) {
+		  var data = [],
+			year;
+		  for (year = startYear; year <= endYear; year++) {
+			var value = feature.properties[year];
+			data.push(feature.properties[year]);
+		  }
+
+		  var width = 250;
+		  var height = 100;
+		  var margin = {left:65,right:40,top:40,bottom:60};
+		  var parse = d3.timeParse("%m");
+		  var format = d3.timeFormat("%b");
+
+		  var div = d3.create("div")
+		  var svg = div.append("svg")
+			.attr("width", width+margin.left+margin.right)
+			.attr("height", height+margin.top+margin.bottom);
+		  var g = svg.append("g")
+			.attr("transform","translate("+[margin.left,margin.top]+")");
+
+		  var y = d3.scaleLinear()
+			.domain([0, d3.max(data, function(d) { return d; }) ])
+			.range([height,0]);
+
+		  var yAxis = d3.axisLeft()
+			.ticks(4)
+			.scale(y);
+		 // g.append("g").call(yAxis);
+
+		  // Add the Y Axis
+		  g.append("g")
+			  .style("font-size", "14px")
+			  .call(yAxis);
+
+
+		  //d3.range(startYear,endYear,5)
+		  var x = d3.scaleBand()
+			.domain(d3.range(endYear-startYear))
+			.range([0,width-20]);
+
+		  var xAxis = d3.axisBottom()
+		  	.ticks(5)
+			.scale(x)
+			.tickFormat(function(d) { return startYear+d; });
+
+		  g.append("g")
+			  .attr("transform", "translate(0," + height + ")")
+			  .call(xAxis)
+			  .style("font-size", "14px")
+			  .selectAll("text")
+			  .attr("text-anchor","end")
+			  .attr("transform","rotate(-90)translate(-12,-15)")
+
+
+		  var rects = g.selectAll("rect")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("y",height)
+			.attr("height",0)
+			.attr("width", x.bandwidth()-2 )
+			.attr("x", function(d,i) { return x(i); })
+			.attr("fill",'#006CFA')
+			.transition()
+			.attr("height", function(d) { return height-y(d); })
+			.attr("y", function(d) { return y(d); });
+
+			// text label for the x axis
+			svg.append("text")
+				.attr("transform",
+					  "translate(" + (width/2 + 50) + " ," +
+									 (height + margin.top + 60) + ")")
+				.style("text-anchor", "middle")
+				.style("font-size", "14px")
+				.text("Year");
+
+
+			// text label for the y axis
+			svg.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("x", -90)
+				.attr("y", 0)
+				.attr("dy", "1em")
+				.style("text-anchor", "middle")
+				.style("font-size", "14px")
+				.text("n Students");
+
+		  var title = svg.append("text")
+			.style("font-size", "14px")
+			.text(feature.properties.name)
+			.attr("x", width/2 + margin.left/2 + 20)
+			.attr("y", 30)
+			.attr("text-anchor","middle");
+
+
+
+		  return div.node();
+
+		};
+
+		function getLegendControl() {
+
+
+			var legend = L.control({
+			    position: 'bottomright'
+			});
+
+			legend.onAdd = function(map) {
+				var div = L.DomUtil.create('div', 'info legend');
+				div.innerHTML = '<strong>Number of students</strong>' +
+					'<div id="my_dataviz"></div>';
+
+
+				return div;
+			};
+
+
+			return legend;
+
+		};
+
+		function addSizeLegend(div){
+
+			// append the svg object to the body of the page
+			var height = 100
+			var width = 140
+			var svg = d3.select(div)
+			  .append("svg")
+				.attr("width", width)
+				.attr("height", height)
+
+			// The scale you use for bubble size
+			var size = d3.scaleSqrt()
+			  .domain([1, 100])  // What's in the data, let's say it is percentage
+			  .range([1, 100])  // Size in pixel
+
+			// Add legend: circles
+			var valuesToShow = [10, 100, 1000]
+			// var radiusOfCircles = valuesToShow.map(getRadius)
+			var xCircle = 40
+			var xLabel = 95
+			var yCircle = 90
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("circle")
+				.attr("cx", xCircle)
+				.attr("cy", function(d){ return yCircle - getRadius(d) } )
+				.attr("r", function(d){ return getRadius(d) })
+				.style("fill", "none")
+				.attr("stroke", "black")
+
+			// Add legend: segments
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("line")
+				.attr('x1', function(d){ return xCircle } )
+				.attr('x2', xLabel)
+				.attr('y1', function(d){ return yCircle - 2 * getRadius(d) } )
+				.attr('y2', function(d){ return yCircle - 2 * getRadius(d) } )
+				.attr('stroke', 'black')
+				.style('stroke-dasharray', ('2,2'))
+
+			// Add legend: labels
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("text")
+				.attr('x', xLabel)
+				.attr('y', function(d){ return yCircle - 2 * getRadius(d) } )
+				.text( function(d){ return d } )
+				.style("font-size", 12)
+				.attr('alignment-baseline', 'middle')
+
+
+		};
+
+
+
+		// sets up a map of switzerland
+		function setupMap(div) {
+
+			// setting up base layer of map
+			var tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+				name: 'tileLayer',
+				attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+				maxZoom: 16
+			});
+
+
+
+
+			// setting default map view
+			var defaultMapCenter = [46.75, 8.3];
+			var defaultMapZoom = 8;
+			var prevMapZoom = defaultMapZoom;
+
+			// initializing map
+			var map = L.map(div, {
+				layers: tileLayer,
+				center: defaultMapCenter,
+				zoom: defaultMapZoom,
+				zoomControl: false,
+				touchZoom: true,
+				// setting zoom restrictions
+				maxZoom: 18,
+				minZoom: defaultMapZoom
+			});
+
+			// setting panning restrictions
+			var bounds = map.getBounds();
+			// map.setMaxBounds(bounds);
+			map.on('drag', function() {
+			  map.panInsideBounds(bounds, { animate: false });
+			});
+
+			// adding tyle layer to our map
+			tileLayer.addTo(map);
+
+			// adding legend to map
+			L.control.scale({imperial: false}).addTo(map);
+
+			return map;
+		};
+
+
+
+
+		</script>
+
+
+	</body>
+
+</html>
