@@ -1,9 +1,0 @@
-{
-"type": "FeatureCollection",
-"features": [
-{ "type": "Feature", "properties": { "name": "centro de idiomas UZH y ETH", "2009": 1182, "2010": 1370, "2011": 1449, "2012": 1559, "2013": 1471, "2014": 1468, "2015": 935, "2016": 953, "2017": 939, "2018": 929 }, "geometry": { "type": "Point", "coordinates": [ 8.548851, 47.374604 ] } },
-{ "type": "Feature", "properties": { "name": "centro de idiomas de la HSLU", "2009": 0, "2010": 0, "2011": 218, "2012": 251, "2013": 215, "2014": 199, "2015": 202, "2016": 204, "2017": 224, "2018": 188 }, "geometry": { "type": "Point", "coordinates": [ 8.314852, 47.046667 ] } },
-{ "type": "Feature", "properties": { "name": "centro de idiomas de la UniBas", "2009": 257, "2010": 269, "2011": 301, "2012": 331, "2013": 356, "2014": 373, "2015": 483, "2016": 502, "2017": 425, "2018": 437 }, "geometry": { "type": "Point", "coordinates": [ 7.583869, 47.558528 ] } },
-{ "type": "Feature", "properties": { "name": "centro de idiomas de la UNIL", "2009": 402, "2010": 402, "2011": 420, "2012": 484, "2013": 455, "2014": 483, "2015": 482, "2016": 449, "2017": 464, "2018": 401 }, "geometry": { "type": "Point", "coordinates": [ 6.584301426, 46.52366542 ] } }
-]
-}
