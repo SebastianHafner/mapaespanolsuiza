@@ -1,5 +1,0 @@
-# Boundary of Switzerland
-https://opendata.swiss/de/dataset/swissboundaries3d-landesgrenzen
-
-# Boundaries of Swiss cantons
-https://opendata.swiss/de/dataset/swissboundaries3d-kantonsgrenzen
