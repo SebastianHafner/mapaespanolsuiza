@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+        <!--
+        * Working with dynamic table
+        * WebSite: http://www.dynatable.com/
+        -->
+
+        <!--    Bootstrap v2.3.2 -->
+        <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/bootstrap-2.3.2.min.css" />
+        <!-- Plugin styles -->
+        <link rel="stylesheet" media="all" href="https://s3.amazonaws.com/dynatable-docs-assets/css/jquery.dynatable.css" />
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.4.3/css/flag-icon.css">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.css" />
+
+        <!--  jQuery v3.0.0-beta1 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.js"></script>
+
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/leaflet.js'></script>
+
+
+        <!-- JS Pluging -->
+        <script type='text/javascript' src='https://s3.amazonaws.com/dynatable-docs-assets/js/jquery.dynatable.js'></script>
+
+        <style>
+
+
+            .table-wrapper{
+				position: absolute;
+				top: 10px;
+				left: 10px;
+				width: 920px;
+            }
+
+
+            #map6 {
+                position: absolute;
+				top: 480px;
+                left: 0px;
+                width: 920px;
+                height: 600px;
+            }
+
+
+
+        </style>
+
+    </head>
+
+    <body>
+
+        <div class="table-wrapper">
+            <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        		<thead>
+        	      <th data-dynatable-column="country">País</th>
+        	      <th data-dynatable-column="institution">Institución</th>
+        		  <th data-dynatable-column="name">Nombre</th>
+                  <th data-dynatable-column="website">Página web</th>
+        		  <th data-dynatable-column="location">Ubicación</th>
+        	    </thead>
+        	    <tbody>
+        	    </tbody>
+            </table>
+        <div>
+
+        <div id="map6"></div>
+
+        <script>
+
+
+
+			var data = {
+			   "type":"FeatureCollection",
+			   "features":[
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Argentina",
+			            "name":"Embajada Argentina en Berna",
+			            "address":"Jungfraustrasse 1, 3005 Berne ",
+			            "website":"http:\/\/www.esuiz.mrecic.gob.ar ",
+			            "code":"ar"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.454704,
+			               46.943993
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Bolivia",
+			            "name":"Consulado General Estado Plurinacional de Bolivia",
+			            "address":"Rue de Lausanne 72, 1202 Genève ",
+			            "website":"http:\/\/www.consuladoboliviasuiza.com",
+			            "code":"bo"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.147492,
+			               46.215722
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Chile",
+			            "name":"Embajada de Chile ante la Confederación Suiza",
+			            "address":"Eigerplatz 5, 3007 Berne ",
+			            "website":" https:\/\/chile.gob.cl\/suiza\/en\/",
+			            "code":"cl"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.431628,
+			               46.940963
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Chile",
+			            "name":"Consulado de Chile en Zúrich",
+			            "address":"Fuhrstrasse 12, Unterer Leihof, 8820 Wädenswil",
+			            "website":"https:\/\/www.embassypages.com\/chile-consulado-zurich-suiza",
+			            "code":"cl"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.669301,
+			               47.225837
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Colombia",
+			            "name":"Embajada de Colombia en Suiza",
+			            "address":"Zieglerstrasse 29, 3007 Berne ",
+			            "website":"http:\/\/suiza.embajada.gov.co",
+			            "code":"co"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.42996,
+			               46.945014
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Costa Rica",
+			            "name":"Embajada de Costa Rica en Confederación Suiza",
+			            "address":"Marktgasse 51, 3011 Berne ",
+			            "website":"https:\/\/www.rree.go.cr\/?sec=politica%20internacional&cat=representaciones&cont=525&id=138",
+			            "code":"cr"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.444767,
+			               46.947961
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Costa Rica",
+			            "name":"Consulado General de Costa Rica en Lausanne",
+			            "address":"Chemin de Mornex 38, 1001 Lausanne ",
+			            "website":"https:\/\/www.embassypages.com\/costarica-consuladogeneral-lausanne-suiza",
+			            "code":"cr"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.625571,
+			               46.519552
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Cuba",
+			            "name":"Embajada de Cuba ",
+			            "address":"Gesellschaftsstrasse 8, 3012 Berne ",
+			            "website":"http:\/\/misiones.minrex.gob.cu\/es\/suiza",
+			            "code":"cu"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.437501,
+			               46.952284
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Dom. Rep.",
+			            "name":"Embajada de la República Dominicana ante la Confederacion Suiza",
+			            "address":"Weltpoststrasse 4, 3000 Berne  ",
+			            "website":"https:\/\/www.embajadadominicana.ch\/",
+			            "code":"do"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.473462,
+			               46.938916
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Dom. Rep.",
+			            "name":"Consulado General de la República Dominicana",
+			            "address":"Löwenstrasse 65, 8001 Zürich ",
+			            "website":"https:\/\/www.embassypages.com\/republicadominicana-consuladogeneral-zurich-suiza",
+			            "code":"do"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.53809,
+			               47.377083
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Ecuador",
+			            "name":"Embajada del Ecuador en Suiza",
+			            "address":"Kramgasse 54, 3011 Berne ",
+			            "website":"https:\/\/www.embajadaecuador.ch",
+			            "code":"ec"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.449746,
+			               46.948111
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Ecuador",
+			            "name":"Consulado del Ecuador en Ginebra",
+			            "address":"chemin Rieu 18, Aesthetics-Clinic Geneva, 1208 Genève ",
+			            "website":"https:\/\/www.embajadaecuador.ch",
+			            "code":"ec"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.165106,
+			               46.19433
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Ecuador",
+			            "name":"Consulado del Ecuador en Zúrich",
+			            "address":"Schiffbaustrasse 2, c\/o Meyerlustenberger Lachenal AG, 8005 Zürich ",
+			            "website":"https:\/\/www.embajadaecuador.ch\/consulado",
+			            "code":"ec"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.519883,
+			               47.388269
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"El Salvador",
+			            "name":"Embajada de El Salvador",
+			            "address":"Rue de Lausanne 65, 1202 Genève ",
+			            "website":"http:\/\/embajadasuiza.rree.gob.sv\/",
+			            "code":"sv"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.146822,
+			               46.215552
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"España",
+			            "name":"Consejería de Trabajo, Migraciones y Seguridad Social en Suiza",
+			            "address":"Kirchenfeldstrasse 42, 3005 Berne",
+			            "website":"http:\/\/www.mecd.gob.es\/suiza",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.452579,
+			               46.94009
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"España",
+			            "name":"Consejería de Educación para Suiza y Austria",
+			            "address":"Kalcheggweg 24, 3006 Berne ",
+			            "website":"http:\/\/www.exteriores.gob.es\/Embajadas\/berna",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.463152,
+			               46.938208
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"España",
+			            "name":"Consulado de España en Berna",
+			            "address":"Marienstrasse 12, 3005 Berne ",
+			            "website":"http:\/\/www.exteriores.gob.es\/consulados\/berna",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.463152,
+			               46.938208
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"España",
+			            "name":"Consulado de España en Zurich",
+			            "address":"Riedtlistrasse 17, 8006 Zürich",
+			            "website":"http:\/\/www.exteriores.gob.es\/consulados\/Zürich ",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.547669,
+			               47.386689
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"España",
+			            "name":"Consulado de España en Ginebra",
+			            "address":"Avenue Blanc 53, 2ème étage, 1202 Genève",
+			            "website":"http:\/\/www.exteriores.gob.es\/consulados\/ginebra ",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.148155,
+			               46.22164
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"España",
+			            "name":"Secretaría de Estado de Comercio",
+			            "address":"Länggassstrasse 31, 3012 Berne ",
+			            "website":"http:\/\/suiza.oficinascomerciales.es ",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.432221,
+			               46.953162
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"España",
+			            "name":"Embajada de España en Berna",
+			            "address":"Kalcheggweg 24, 3006 Bern",
+			            "website":"http:\/\/www.exteriores.gob.es\/Embajadas\/Berna\/es\/Paginas\/inicio.aspx",
+			            "code":"es"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.463152,
+			               46.938208
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Guatemala",
+			            "name":"Embajada de Guatemala en Berna",
+			            "address":"Jubiläumsstrasse 41, 3005 Berne ",
+			            "website":"https:\/\/www.embassypages.com\/guatemala-consulado-zurich-suiza",
+			            "code":"gt"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.450387,
+			               46.938048
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Honduras",
+			            "name":"Embajada Hondurasa en Le grand-saconnex",
+			            "address":"Chemin Taverney 13, Le Grand-Saconnex, 1218 Le Grand-Saconnex",
+			            "website":"https:\/\/www.consul.info\/es\/embassy-honduras-le-grand-saconnex",
+			            "code":"hn"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.1196445,
+			               46.2300073
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"México",
+			            "name":"Embajada de México en Suiza",
+			            "address":"Weltpoststrasse 20, 3015 Berne ",
+			            "website":"http:\/\/embamex.sre.gob.mx\/suiza\/",
+			            "code":"mx"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.476429,
+			               46.93754
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"México",
+			            "name":"Consulado de México",
+			            "address":"Rue de Candolle 16, 1205 Genève ",
+			            "website":"https:\/\/www.embassypages.com\/mexico-consulado-ginebra-suiza",
+			            "code":"mx"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.144726,
+			               46.19813
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"México",
+			            "name":"Consulado Honorario de México en Zúrich",
+			            "address":"Tödistrasse 16, 8002 Zürich ",
+			            "website":"https:\/\/www.embassypages.com\/mexico-consulado-zurich-suiza",
+			            "code":"mx"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.535737,
+			               47.365051
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"México",
+			            "name":"Consulado de México",
+			            "address":"Via Nassa\/Via Dogana Vecchia 2, 6900 Lugano ",
+			            "website":"https:\/\/www.embassypages.com\/mexico-consulado-lugano-suiza",
+			            "code":"mx"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.950181,
+			               46.002926
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"México",
+			            "name":"Consulado de México",
+			            "address":"Neusatzweg 32, 4102 Binningen ",
+			            "website":"https:\/\/www.consulate-info.com\/consulate\/21052\/Mexico-in-Basel",
+			            "code":"mx"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               47.539759,
+			               47.539759
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Nicaragua",
+			            "name":"Conbsulado General de Nicaragua en Ginebra",
+			            "address":"Rue de Vermont 37 - 39, 1202 Genève ",
+			            "website":"https:\/\/www.embassypages.com\/nicaragua-consuladogeneral-ginebra-suiza",
+			            "code":"ni"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.137203,
+			               46.218862
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Panamá",
+			            "name":"Conbsulado General de Panamá en Ginebra",
+			            "address":"rue de Lausanne 72, 1202 Genève ",
+			            "website":"https:\/\/www.embassypages.com\/panama-consuladogeneral-ginebra-suiza",
+			            "code":"pa"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.147492,
+			               46.215722
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Paraguay",
+			            "name":"Embajada de la República del Paraguay ante la Confederación Suiza",
+			            "address":"Kramgasse 58, 3000 Berne 8 ",
+			            "website":"https:\/\/www.embajadaparaguaysuiza.ch\/",
+			            "code":"py"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.449462,
+			               46.948079
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Paraguay",
+			            "name":"Consulado de la República del Paraguay",
+			            "address":"Via Domenico Fontana 14, 6900 Lugano ",
+			            "website":"https:\/\/www.botschaft-konsulat.com\/ch\/Konsulate\/12803\/Paraguay-in-Lugano",
+			            "code":"py"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.943337,
+			               45.992877
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Perú",
+			            "name":"Sección consular de la Embajade del Perú",
+			            "address":"Thunstrasse 36, 3005 Berne ",
+			            "website":"http:\/\/www.embaperu.ch",
+			            "code":"pe"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.455821,
+			               46.941251
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Perú",
+			            "name":"Embajada del Perú",
+			            "address":"Thunstrasse 36, 3005 Berne ",
+			            "website":"http:\/\/www.embaperu.ch",
+			            "code":"pe"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.455821,
+			               46.941251
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Perú",
+			            "name":"Consulado General del Perú en Ginebra",
+			            "address":"Rue des Pierres-du-Niton 17, 1207 Genève ",
+			            "website":"http:\/\/www.conperginebra.ch",
+			            "code":"pe"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               6.157145,
+			               46.203837
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Perú",
+			            "name":"Consulado General del Perú en Zúrich",
+			            "address":"Löwenstrasse 69, 8001 Zürich",
+			            "website":"http:\/\/www.conperzurich.ch",
+			            "code":"pe"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               8.538258,
+			               47.377244
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Uruguay",
+			            "name":"Embajada de Uruguay en Berna",
+			            "address":"Kramgasse 63, 3011 Berne ",
+			            "website":"https:\/\/www.infosuiza.com\/embajada-de-uruguay-en-suiza\/",
+			            "code":"uy"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.449251,
+			               46.9478
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"consulado",
+			            "country":"Uruguay",
+			            "name":"Consulado de Uruguay",
+			            "address":"Steinenring 15, 4051 Bâle ",
+			            "website":"https:\/\/www.embassypages.com\/uruguay-embajada-berna-suiza",
+			            "code":"uy"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.578684,
+			               47.552293
+			            ]
+			         }
+			      },
+			      {
+			         "type":"Feature",
+			         "properties":{
+			            "institution":"embajada ",
+			            "country":"Venezuela",
+			            "name":"Embajada de Venezuela en Suiza",
+			            "address":"Waldeggstrasse 47, 3097 Liebefeld ",
+			            "website":"http:\/\/suiza.embajada.gob.ve\/",
+			            "code":"ve"
+			         },
+			         "geometry":{
+			            "type":"Point",
+			            "coordinates":[
+			               7.419439,
+			               46.932428
+			            ]
+			         }
+			      }
+			   ]
+		   	};
+
+
+			var dictTranslationCountries = {
+				'España': 'España',
+				'Argentinien': 'Argentina',
+				'Chile': 'Chile',
+				'Bolivia': 'Bolivia',
+				'Costa Rica': 'Costa Rica',
+				'Republica Dominicana': 'República Dominicana',
+				'Ecuador': 'Ecuador',
+				'El Salvador': 'El Salvador',
+				'Guatemala': 'Guatemala',
+				'Honduras': 'Honduras',
+				'Colombia': 'Colombia',
+				'Cuba': 'Cuba',
+				'México': 'México',
+				'Nicaragua': 'Nicaragua',
+				'Pánama': 'Panamá',
+				'Paraguay': 'Paraguay',
+				'Peru': 'Perú',
+				'Uruguay': 'Uruguay',
+				'Venezuela': 'Venezuela'
+			};
+
+			var dictTranslationInstitutions = {
+				'Botschaft': 'Embajada',
+				'Konsulat': 'Consulado'
+			};
+
+
+            var records = [],
+                i,
+                id,
+                marker;
+
+
+            // console.log(data)
+
+            for (i = 0; i < data.features.length; i++) {
+
+                record = data.features[i].properties;
+                // console.log(record);
+				// console.log(record.country, dictTranslationCountries[record.country])
+				record.countryName = record.country;
+				if (record.countryName == 'Dom. Rep.') {
+					record.countryName = 'República Dominicana';
+				};
+
+
+                record.country = '<span class="flag-icon flag-icon-' +
+                    record.code + '"></span><span> ' + record.countryName +
+                    '</span>';
+
+				// record.institution = dictTranslationInstitutions[record.institution];
+				record.institution = record.institution.charAt(0).toUpperCase() + record.institution.substring(1);
+
+                // creating hyperlink if a website exists
+                if (record.website) {
+                    record.website = '<a href="' + record.website +
+                        '" target="_blank">Enlace</a>';
+                } else {
+                    record.website = '';
+                };
+
+                // creating unique id
+                id = record.code + '_' + record.institution;
+				// var markerURL = 'https://image.flaticon.com/icons/svg/149/149060.svg'
+				// var markerImage = '<img src="' + markerURL + '">'
+
+                // creating link to map
+                record.location = '<div id="' + id +
+                    '" class="popup" onclick="zoomToMarker(this.id)">Mapa' +
+                    '<span class="popuptext" id="_' + id +
+                    '"><div id="' + 'map_' + id +
+                    '" class="tableMap"></div></span></div>';
+
+				// console.log(L.Icon.Default.imagePath);
+
+                data.features[i].properties.id = id;
+
+                records.push(record);
+            };
+
+            // console.log(records)
+
+
+            var dynatable = $('#example').dynatable({
+				features: {
+			      paginate: true,
+			      sort: true,
+			      pushState: true,
+			      search: false,
+			      recordCount: false,
+			      perPageSelect: false
+			    },
+				inputs: {
+					queries: null,
+					sorts: null,
+					multisort: ['ctrlKey', 'shiftKey', 'metaKey'],
+					page: null,
+					queryEvent: 'blur change',
+					recordCountTarget: null,
+					recordCountPlacement: 'after',
+					paginationLinkTarget: null,
+					paginationLinkPlacement: 'after',
+					paginationPrev: 'Anterior',
+					paginationNext: 'Siguiente',
+					paginationGap: [1,2,2,1],
+					searchTarget: null,
+					searchPlacement: 'before',
+					perPageTarget: null,
+					perPagePlacement: 'before',
+					perPageText: 'Mostrar: ',
+					recordCountText: 'Showing ',
+					processingText: 'Processing...'
+				},
+			  	dataset: {
+                	records: records
+              	},
+				params: {
+				  dynatable: 'dynatable',
+				  queries: 'queries',
+				  sorts: 'sorts',
+				  page: 'page',
+				  perPage: 'perPage',
+				  offset: 'offset',
+				  records: 'records',
+				  record: null,
+				  queryRecordCount: 'queryRecordCount',
+				  totalRecordCount: 'totalRecordCount'
+				}
+            });
+
+			// dynatable.paginationPerPage.set(10); // Show 10 records per page
+
+
+
+            // setting up new map
+
+			// setting up base layer of map
+			var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+				name: 'tileLayer',
+				maxZoom: 19,
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">Humanitarian OpenStreetMap Team</a> hosted by <a href="https://openstreetmap.fr/" target="_blank">OpenStreetMap France</a>'
+			});
+
+			// setting default map view
+			var defaultMapCenter = [46.80, 8.35];
+			var defaultMapZoom = 8;
+
+			// initializing map
+			var map6 = L.map('map6', {
+				layers: tileLayer,
+				center: defaultMapCenter,
+				zoom: defaultMapZoom,
+				zoomControl: false,
+				touchZoom: true,
+				// setting zoom restrictions
+				maxZoom: 18,
+				minZoom: defaultMapZoom
+			});
+
+			// setting panning restrictions
+			var bounds = map6.getBounds();
+			// map.setMaxBounds(bounds);
+			// map.on('drag', function() {
+			  // map.panInsideBounds(bounds, { animate: false });
+			// });
+
+			// adding tyle layer to our map
+			tileLayer.addTo(map6);
+
+			// adding legend to map
+			L.control.scale({imperial: false}).addTo(map6);
+
+			/*
+			var greenIcon = L.icon({
+			    iconUrl: 'https://image.flaticon.com/icons/svg/660/660623.svg',
+
+			    iconSize:     [38, 95], // size of the icon
+			    shadowSize:   [50, 64], // size of the shadow
+			    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+			    shadowAnchor: [4, 62],  // the same for the shadow
+			    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+			});
+			*/
+
+
+            // Add requested external GeoJSON to map
+    		var embassyMarkers = L.geoJson(data, {
+                pointToLayer: function(feature, latlng) {
+                    var location = L.latLng(feature.x, feature.x);
+
+					// var marker = L.marker(latlng, {icon: greenIcon});
+                    var marker =  L.marker(latlng);
+
+					var popup = ''.concat(
+						'<b>', feature.properties.name, '</b>',
+						'<br>', feature.properties.address
+					);
+
+                    // var popup = feature.properties.address;
+
+                    marker.bindPopup(popup);
+
+                    return marker;
+                }
+    		})
+            embassyMarkers.addTo(map6);
+
+
+            function zoomToMarker(id) {
+
+
+                embassyMarkers.eachLayer(function(marker) {
+
+
+
+                    if (marker.feature.properties.id == id) {
+
+						// window.scrollTo(0, 500);
+
+                        // console.log(marker);
+                        marker.openPopup();
+						var latlng = L.latLng(47.377244, 8.538258);
+						// map6.flyTo(defaultMapCenter, defaultMapZoom, { duration: 0, });
+						map6.setView(defaultMapCenter, defaultMapZoom);
+
+						setTimeout(function (){
+							map6.flyTo(marker.getLatLng(), 14, { duration: 4, });
+
+						}, 800); // How long do you want the delay to be (in milliseconds)?
+
+                        // map6.panTo(latlng);
+                    }
+
+
+                });
+                // console.log(embassyMarker);
+
+                // map6.panTo(embassyMarker);
+
+
+            }
+
+
+
+        </script>
+
+    </body>
+
+
+</html>

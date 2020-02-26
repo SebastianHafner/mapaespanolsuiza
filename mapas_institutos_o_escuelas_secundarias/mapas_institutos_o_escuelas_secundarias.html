@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.0/css/ion.rangeSlider.min.css"/>
+
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js'></script>
+		<script src="https://d3js.org/d3.v3.js"></script>
+
+		<style>
+
+			#map7 {
+				width: 920px;
+				height: 640px;
+			}
+
+
+
+			.info {
+				padding: 6px 8px;
+				font: 14px/16px Arial, Helvetica, sans-serif;
+				background: white;
+				background: rgba(255,255,255,1);
+				box-shadow: 0 0 15px rgba(0,0,0,0.2);
+				border-radius: 5px;
+			}
+			.info h4 {
+				margin: 0 0 5px;
+				color: #777;
+			}
+
+			.legend {
+				line-height: 18px;
+				color: #555;
+			}
+			.legend i {
+				width: 18px;
+				height: 18px;
+				float: left;
+				margin-right: 8px;
+				opacity: 1;
+			}
+
+		</style>
+
+	</head>
+
+	<body>
+
+		<div id="map7"></div>
+
+	<script>
+
+
+
+
+		var absolute = [
+		   {
+		      "name":"Graub\u00fcnden",
+		      "n_kantis":4,
+		      "x":9.6286238127,
+		      "y":46.6560657916
+		   },
+		   {
+		      "name":"Bern",
+		      "n_kantis":9,
+		      "x":7.6247442946,
+		      "y":46.8220878756
+		   },
+		   {
+		      "name":"Valais",
+		      "n_kantis":0,
+		      "x":7.6059400343,
+		      "y":46.2093551399
+		   },
+		   {
+		      "name":"Vaud",
+		      "n_kantis":13,
+		      "x":6.646681769,
+		      "y":46.5594497191
+		   },
+		   {
+		      "name":"Ticino",
+		      "n_kantis":5,
+		      "x":8.808554729,
+		      "y":46.2960604157
+		   },
+		   {
+		      "name":"St. Gallen",
+		      "n_kantis":5,
+		      "x":9.2750114186,
+		      "y":47.2340076007
+		   },
+		   {
+		      "name":"Z\u00fcrich",
+		      "n_kantis":8,
+		      "x":8.655060372,
+		      "y":47.4128933509
+		   },
+		   {
+		      "name":"Fribourg",
+		      "n_kantis":7,
+		      "x":7.0965589309,
+		      "y":46.7085117979
+		   },
+		   {
+		      "name":"Luzern",
+		      "n_kantis":6,
+		      "x":8.1103236231,
+		      "y":47.0679060372
+		   },
+		   {
+		      "name":"Aargau",
+		      "n_kantis":6,
+		      "x":8.1568810388,
+		      "y":47.4098989416
+		   },
+		   {
+		      "name":"Uri",
+		      "n_kantis":2,
+		      "x":8.628868744,
+		      "y":46.7720232291
+		   },
+		   {
+		      "name":"Thurgau",
+		      "n_kantis":3,
+		      "x":9.0914715556,
+		      "y":47.5689486442
+		   },
+		   {
+		      "name":"Schwyz",
+		      "n_kantis":3,
+		      "x":8.7566659918,
+		      "y":47.0617773724
+		   },
+		   {
+		      "name":"Jura",
+		      "n_kantis":2,
+		      "x":7.1561977841,
+		      "y":47.3507562225
+		   },
+		   {
+		      "name":"Neuch\u00e2tel",
+		      "n_kantis":2,
+		      "x":6.7802543372,
+		      "y":46.9955962927
+		   },
+		   {
+		      "name":"Solothurn",
+		      "n_kantis":1,
+		      "x":7.6497187687,
+		      "y":47.2959254733
+		   },
+		   {
+		      "name":"Glarus",
+		      "n_kantis":1,
+		      "x":9.065858316,
+		      "y":46.9812184646
+		   },
+		   {
+		      "name":"Basel-Landschaft",
+		      "n_kantis":6,
+		      "x":7.7067137242,
+		      "y":47.4519997792
+		   },
+		   {
+		      "name":"Obwalden",
+		      "n_kantis":0,
+		      "x":8.2089343119,
+		      "y":46.8581521514
+		   },
+		   {
+		      "name":"Nidwalden",
+		      "n_kantis":1,
+		      "x":8.4053404697,
+		      "y":46.9268294572
+		   },
+		   {
+		      "name":"Gen\u00e8ve",
+		      "n_kantis":10,
+		      "x":6.130739502,
+		      "y":46.2164997078
+		   },
+		   {
+		      "name":"Schaffhausen",
+		      "n_kantis":1,
+		      "x":8.5644845661,
+		      "y":47.7217895869
+		   },
+		   {
+		      "name":"Appenzell Ausserrhoden",
+		      "n_kantis":2,
+		      "x":9.3686760073,
+		      "y":47.3661341706
+		   },
+		   {
+		      "name":"Zug",
+		      "n_kantis":5,
+		      "x":8.5373241949,
+		      "y":47.1572527377
+		   },
+		   {
+		      "name":"Appenzell Innerrhoden",
+		      "n_kantis":1,
+		      "x":9.4033193681,
+		      "y":47.3079388594
+		   },
+		   {
+		      "name":"Basel-Stadt",
+		      "n_kantis":4,
+		      "x":7.6152802806,
+		      "y":47.5649005461
+		   }
+	   	];
+
+		// time series slider to select the year to visualize on the map
+		var cantons,
+			dataLoaded = false;
+
+
+		var tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/base/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+		});
+
+	    // setting default map view
+	    var defaultMapCenter = [46.85, 8.15];
+	    var defaultMapZoom = 8;
+	    var prevMapZoom = defaultMapZoom;
+
+	    // initializing map
+	    var map7 = L.map('map7', {
+	      layers: tileLayer,
+	      center: defaultMapCenter,
+	      zoom: defaultMapZoom,
+	      zoomControl: false,
+	      touchZoom: false,
+	      // setting zoom restrictions
+	      maxZoom: defaultMapZoom,
+	      minZoom: defaultMapZoom
+	    });
+
+	    // setting panning restrictions
+	    var bounds = map7.getBounds();
+	    // map2.setMaxBounds(bounds);
+	    map7.on('drag', function() {
+	        map7.panInsideBounds(bounds, { animate: false });
+	    });
+
+	    // adding tyle layer to our map
+	    tileLayer.addTo(map7);
+
+	    // adding legend to map
+	    L.control.scale({imperial: false, position: 'bottomleft'}).addTo(map7);
+
+		// adding data to map
+		// absolute = L.geoJson(absolute);
+		// absolute.addTo(map7);
+
+
+
+		var url = 'https://raw.githubusercontent.com/SebastianHafner/mapaespanolsuiza/master/map7/map7_choropleth.json';
+		// url = 'map7_choropleth.json';
+		// making AJAX request for data
+		var map2DataRequest = $.ajax({
+		  url: url,
+		  dataType: "json",
+		  success: console.log("Map2 data successfully loaded."),
+		  error: function(xhr) { alert(xhr.statusText); }
+		})
+
+		// making sure data request is complete before rendering map
+		$.when(map2DataRequest).done(function() {
+
+			// adding choropleth map and legend
+			cantons = L.geoJson(map2DataRequest.responseJSON);
+			cantons.addTo(map7);
+			dataLoaded = true;
+			setChropleth();
+
+			// adding legend to map
+			var legendMap7 = setupChoroplethLegend();
+			legendMap7.addTo(map7);
+
+			// adding absolute map and legend
+			setAbsolute();
+
+			var legendControlAbsolute = getLegendControl('absoluteLegend', 'Número de institutos');
+
+			console.log(legendControlAbsolute);
+			legendControlAbsolute.addTo(map7);
+			addAbsoluteLegend('#absoluteLegend')
+			absolute = absolute.slice(0, 1);
+
+
+			/*
+			console.log(kantis);
+
+			var kantisLayer = L.geoJson(kantis, {
+				pointToLayer: function(feature, latlng) {
+					console.log(feature);
+
+					var marker,
+						markerSize = 6,
+						hyperlink,
+						popup;
+
+					marker =  L.circleMarker(latlng, {
+						radius: 6,
+						fillColor: '#006CFA',
+						color: '#000000',
+						weight: 1,
+						opacity: 1,
+						fillOpacity: 0.8
+					});
+
+					popup = ''.concat(
+						'<b>', feature.properties.name, '</b>',
+						'<br>', feature.properties.address
+					);
+					marker.bindPopup(popup);
+
+					return marker;
+
+				}
+			});
+
+			kantisLayer.addTo(map7);
+			*/
+		});
+
+
+
+
+
+		function addAbsoluteLegend(div) {
+
+			var i,
+				size = 6,
+				xIndex, yIndex,
+				xPos, yPos,
+				xRecOffset = 12, yRecOffset = 12
+				nKantis = 10,
+				rectangles = [];
+
+			length = Math.ceil(Math.sqrt(nKantis));
+			for (i = 0; i < nKantis; i++) {
+				xIndex = i % length;
+				yIndex = (i - xIndex) / length;
+				yPos = - yIndex * (yRecOffset)
+				xPos = xIndex * (xRecOffset)
+				rectangles.push({
+					x: xPos,
+					y: yPos
+				});
+			};
+
+			console.log(rectangles)
+
+
+			// append the svg object to the body of the page
+			var height = 45
+			var width = 140
+			var svg = d3.select('#my_dataviz')
+			  .append("svg")
+				.attr("width", width)
+				.attr("height", height)
+
+			g = svg.append("g");
+
+			var xRectangles = 5
+			var xLabel = 95
+			var yRectangles = 35
+			var feature = g.selectAll("rect")
+				.data(rectangles)
+				.enter().append("rect")
+				.style("stroke", "black")
+				.style("opacity", 1.0)
+				.style("fill", "#4a5159")
+				.attr("x", function(d){ return xRectangles + d.x })
+				.attr("y", function(d){ return yRectangles + d.y })
+				.attr("height", size)
+				.attr("width", size);
+
+
+			svg.append("text")
+			        .attr("x", 90)
+			        .attr("y", 30)
+			        .attr("text-anchor", "middle")
+			        .style("font-size", "12px")
+			        .text(nKantis + " institutos");
+		};
+
+
+
+
+
+		function setAbsolute ()  {
+
+			// first we apply empirical offsets to the centroid positions
+			var centroidOffsets = {
+				'Bern': {x: -0.06, y: 0},
+				'Luzern': {x: -0.06, y: 0.03},
+				'Ticino': {x: -0.06, y: 0.0},
+				'Vaud': {x: -0.18, y: 0.0},
+				'Fribourg': {x: -0.06, y: -0.04},
+				'St. Gallen': {x: -0.03, y: -0.1},
+				'Uri': {x: -0.03, y: 0.05},
+				'Nidwalden': {x: 0.0, y: 0.02},
+				'Zug': {x: -0.045, y: 0.0},
+				'Jura': {x: 0.0, y: 0.02},
+				'Schaffhausen': {x: -0.03, y: 0.01},
+				'Aargau': {x: -0.02, y: 0.0},
+				'Solothurn': {x: 0.0, y: 0.04},
+				'Appenzell Innerrhoden': {x: -0.01, y: 0.01},
+				'Appenzell Ausserrhoden': {x: -0.13, y: 0.01},
+				'Basel-Landschaft': {x: 0.02, y: -0.02},
+				'Basel-Stadt': {x: -0.03, y: 0.0},
+				'Thurgau': {x: -0.04, y: 0.0},
+				'Z\u00fcrich': {x: -0.06, y: -0.02},
+				'Neuch\u00e2tel': {x: 0.0, y: 0.01},
+				'Gen\u00e8ve': {x: -0.1, y: -0.03},
+			}
+			absolute.forEach(function(d) {
+				var canton = d.name;
+				if (canton in centroidOffsets) {
+					// console.log(d.name);
+					d.x += centroidOffsets[canton].x;
+					d.y += centroidOffsets[canton].y;
+				};
+			});
+
+
+
+			// adding for each kanti in canton a rectangle
+			var rectangles = [],
+				size = 6,
+				latOffset = 0.04,
+				lngOffset = 0.06,
+				nKantis,
+				length,
+				xPos, yPos,
+				ll,
+				lat, lng,
+				i;
+			absolute.forEach(function(d) {
+				nKantis = d.n_kantis;
+				length = Math.ceil(Math.sqrt(nKantis));
+				for (i = 0; i < nKantis; i++) {
+					xPos = i % length;
+					yPos = (i - xPos) / length;
+					lat = d.y
+					lat = lat + yPos * (latOffset)
+					lng = d.x
+					lng = lng + xPos * (lngOffset);
+					rectangles.push({
+						name: d.name,
+						n: i,
+						LatLng: new L.LatLng(lat, lng)
+					});
+				};
+
+			});
+
+
+
+			// initialize the SVG layer
+			map7._initPathRoot()
+
+			// picking up the SVG from the map object
+			var svg = d3.select("#map7").select("svg"),
+			g = svg.append("g");
+
+			// console.log(rectangles);
+
+			var feature = g.selectAll("rect")
+				.data(rectangles)
+				.enter().append("rect")
+				.style("stroke", "black")
+				.style("opacity", 1.0)
+				.style("fill", "#4a5159")
+				.attr("height", size)
+				.attr("width", size);
+
+
+
+			map7.on("viewreset", update);
+			update();
+
+			function update() {
+				feature.attr("transform",
+				function(d) {
+					return "translate("+
+						map7.latLngToLayerPoint(d.LatLng).x +","+
+						map7.latLngToLayerPoint(d.LatLng).y +")";
+					}
+				);
+			};
+
+
+
+		};
+
+
+
+
+
+
+		function setChropleth () {
+
+			// console.log('changing to ' + country + ' for ' + year)
+
+			if (dataLoaded) {
+
+				// first we set the layer colors
+				cantons.eachLayer(function(layer) {
+					// console.log(key);
+					var count = layer.feature.properties.n_kantis;
+					var n_inhabitants = layer.feature.properties.n_inhabitants;
+
+					var percentage = -1;
+					if ((n_inhabitants != null)  && (count != null)) {
+					   kantiDensity = count/n_inhabitants*100000;
+					};
+
+					layer.setStyle({
+					   fillColor: getColor(kantiDensity),
+						  weight: 0.5,
+						  opacity: 1,
+						  color: 'black',
+						  fillOpacity: 1
+					});
+
+					// then we set the popups
+					 layer.bindPopup(''.concat(
+						'<b>', layer.feature.properties.name, '</b>',
+						// '<br>', kantiDensity,
+						'<br>Número de institutos: ', count,
+						'<br>', 'Habitantes cantón: ', n_inhabitants
+					));
+
+				});
+
+			};
+		};
+
+
+		// function to get color according to count and min max
+		// colors are from colorbrewer http://colorbrewer2.org/#type=sequential&scheme=YlGnBu&n=6
+		function getColor(p) {
+		  // red for no data
+		  if (p == -1) {
+			return '#969696';
+		  } else {
+			return	p > 6 ? '#8c2d04' :
+					p > 5 ? '#cc4c02' :
+					p > 4 ? '#ec7014' :
+				   	p > 3  ? '#fe9929' :
+				   	p > 2  ? '#fec44f' :
+				   	p > 1  ? '#fee391' :
+								  '#ffffd4';
+		  };
+		};
+
+
+
+		function setupChoroplethLegend() {
+		  var legend = L.control({position: 'topleft'});
+		  legend.onAdd = function (map) {
+
+			var div = L.DomUtil.create('div', 'info legend'),
+				grades = [6, 5, 4, 3, 2, 1],
+				labels = [],
+				add;
+			// console.log(div);
+			div.innerHTML += '<span style="font-weight:bold; display:block; height:0;">Número de institutos con español</span>' +
+				'<br><span style="font-weight:bold; display:block; height:0;">' + "por cada 100'000 habitantes" + '</span><br>';
+
+			// loop through our density intervals and generate a color box and a label for each entry
+			grades.push(grades[grades.length-1]);
+			for (var i = 0; i < grades.length; i++) {
+
+			  add = (i < grades.length-1) ? grades[grades.length-1] : -grades[0];
+
+			  // create color box
+			  div.innerHTML += '<i style="background:' + getColor(grades[i] + add) + '"></i> ';
+
+			  // create label, but treat first and last entry separately
+			  if (i == 0) {
+				div.innerHTML += '> ' + grades[i] + '<br>' ;
+			  } else if (i == grades.length-1) {
+				div.innerHTML += '< ' + grades[i] + '<br>' ;
+			  } else {
+				div.innerHTML += grades[i-1] + ' &ndash; ' + grades[i] + '<br>';
+			  };
+			}
+
+			// finally add no data entry
+			// div.innerHTML += '<i style="background:' + getColor(-1) + '"></i>';
+			// div.innerHTML += '<span>No data</span>' ;
+
+			return div;
+		  };
+		  return legend;
+		};
+
+
+		function getLegendControl(div, title) {
+
+
+			var legend = L.control({
+				position: 'topright'
+			});
+
+			legend.onAdd = function(map) {
+				var div = L.DomUtil.create('div', 'info legend');
+				div.innerHTML = '<strong>' + title + '</strong>' +
+					'<div id="my_dataviz"></div>';
+
+
+				return div;
+			};
+
+
+			return legend;
+
+		};
+
+
+	</script>
+
+	</body>
+
+</html>

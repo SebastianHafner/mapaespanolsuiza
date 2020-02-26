@@ -1,0 +1,707 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Argentina",
+                "name": "Embajada Argentina en Berna",
+                "address": "Jungfraustrasse 1, 3005 Berne\u00c2\u00a0",
+                "website": "http://www.esuiz.mrecic.gob.ar ",
+                "code": "ar"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.454704,
+                    46.943993
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Bolivia",
+                "name": "Consulado General Estado Plurinacional de Bolivia",
+                "address": "Rue de Lausanne 72, 1202 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "http://www.consuladoboliviasuiza.com",
+                "code": "bo"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.147492,
+                    46.215722
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Chile",
+                "name": "Embajada de Chile ante la Confederaci\u00c3\u00b3n Suiza",
+                "address": "Eigerplatz 5, 3007 Berne\u00c2\u00a0",
+                "website": " https://chile.gob.cl/suiza/en/",
+                "code": "cl"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.431628,
+                    46.940963
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Chile",
+                "name": "Consulado de Chile en Z\u00c3\u00barich",
+                "address": "Fuhrstrasse 12, Unterer Leihof, 8820 W\u00c3\u00a4denswil",
+                "website": "https://www.embassypages.com/chile-consulado-zurich-suiza",
+                "code": "cl"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.669301,
+                    47.225837
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Colombia",
+                "name": "Embajada de Colombia en Suiza",
+                "address": "Zieglerstrasse 29, 3007 Berne\u00c2\u00a0",
+                "website": "http://suiza.embajada.gov.co",
+                "code": "co"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.42996,
+                    46.945014
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Costa Rica",
+                "name": "Embajada de Costa Rica en Confederaci\u00c3\u00b3n Suiza",
+                "address": "Marktgasse 51, 3011 Berne\u00c2\u00a0",
+                "website": "https://www.rree.go.cr/?sec=politica%20internacional&cat=representaciones&cont=525&id=138",
+                "code": "cr"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.444767,
+                    46.947961
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Costa Rica",
+                "name": "Consulado General de Costa Rica en Lausanne",
+                "address": "Chemin de Mornex 38, 1001 Lausanne\u00c2\u00a0",
+                "website": "https://www.embassypages.com/costarica-consuladogeneral-lausanne-suiza",
+                "code": "cr"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.625571,
+                    46.519552
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Cuba",
+                "name": "Embajada de Cuba ",
+                "address": "Gesellschaftsstrasse 8, 3012 Berne\u00c2\u00a0",
+                "website": "http://misiones.minrex.gob.cu/es/suiza",
+                "code": "cu"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.437501,
+                    46.952284
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Dom. Rep.",
+                "name": "Embajada de la Rep\u00c3\u00bablica Dominicana ante la Confederacion Suiza",
+                "address": "Weltpoststrasse 4, 3000 Berne \u00c2\u00a0",
+                "website": "https://www.embajadadominicana.ch/",
+                "code": "do"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.473462,
+                    46.938916
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Dom. Rep.",
+                "name": "Consulado General de la Rep\u00c3\u00bablica Dominicana",
+                "address": "L\u00c3\u00b6wenstrasse 65, 8001 Z\u00c3\u00bcrich\u00c2\u00a0",
+                "website": "https://www.embassypages.com/republicadominicana-consuladogeneral-zurich-suiza",
+                "code": "do"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.53809,
+                    47.377083
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Ecuador",
+                "name": "Embajada del Ecuador en Suiza",
+                "address": "Kramgasse 54, 3011 Berne\u00c2\u00a0",
+                "website": "https://www.embajadaecuador.ch",
+                "code": "ec"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.449746,
+                    46.948111
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Ecuador",
+                "name": "Consulado del Ecuador en Ginebra",
+                "address": "chemin Rieu 18, Aesthetics-Clinic Geneva, 1208 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "https://www.embajadaecuador.ch",
+                "code": "ec"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.165106,
+                    46.19433
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Ecuador",
+                "name": "Consulado del Ecuador en Z\u00c3\u00barich",
+                "address": "Schiffbaustrasse 2, c/o Meyerlustenberger Lachenal AG, 8005 Z\u00c3\u00bcrich\u00c2\u00a0",
+                "website": "https://www.embajadaecuador.ch/consulado",
+                "code": "ec"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.519883,
+                    47.388269
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "El Salvador",
+                "name": "Embajada de El Salvador",
+                "address": "Rue de Lausanne 65, 1202 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "http://embajadasuiza.rree.gob.sv/",
+                "code": "sv"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.146822,
+                    46.215552
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Consejer\u00c3\u00ada de Trabajo, Migraciones y Seguridad Social en Suiza",
+                "address": "Kirchenfeldstrasse 42, 3005 Berne",
+                "website": "http://www.mecd.gob.es/suiza",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.452579,
+                    46.94009
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Consejer\u00c3\u00ada de Educaci\u00c3\u00b3n para Suiza y Austria",
+                "address": "Kalcheggweg 24, 3006 Berne\u00c2\u00a0",
+                "website": "http://www.exteriores.gob.es/Embajadas/berna",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.463152,
+                    46.938208
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Consulado de Espa\u00c3\u00b1a en Berna",
+                "address": "Marienstrasse 12, 3005 Berne\u00c2\u00a0",
+                "website": "http://www.exteriores.gob.es/consulados/berna",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.463152,
+                    46.938208
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Consulado de Espa\u00c3\u00b1a en Zurich",
+                "address": "Riedtlistrasse 17, 8006 Z\u00c3\u00bcrich",
+                "website": "http://www.exteriores.gob.es/consulados/Z\u00c3\u00bcrich ",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.547669,
+                    47.386689
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Consulado de Espa\u00c3\u00b1a en Ginebra",
+                "address": "Avenue Blanc 53, 2\u00c3\u00a8me \u00c3\u00a9tage, 1202 Gen\u00c3\u00a8ve",
+                "website": "http://www.exteriores.gob.es/consulados/ginebra ",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.148155,
+                    46.22164
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Secretar\u00c3\u00ada de Estado de Comercio",
+                "address": "L\u00c3\u00a4nggassstrasse 31, 3012 Berne\u00c2\u00a0",
+                "website": "http://suiza.oficinascomerciales.es ",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.432221,
+                    46.953162
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Espa\u00c3\u00b1a",
+                "name": "Embajada de Espa\u00c3\u00b1a en Berna",
+                "address": "Kalcheggweg 24, 3006 Bern",
+                "website": "http://www.exteriores.gob.es/Embajadas/Berna/es/Paginas/inicio.aspx",
+                "code": "es"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.463152,
+                    46.938208
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Guatemala",
+                "name": "Embajada de Guatemala en Berna",
+                "address": "Jubil\u00c3\u00a4umsstrasse 41, 3005 Berne\u00c2\u00a0",
+                "website": "https://www.embassypages.com/guatemala-consulado-zurich-suiza",
+                "code": "gt"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.450387,
+                    46.938048
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Honduras",
+                "name": "Embajada Hondurasa en Le grand-saconnex",
+                "address": "Chemin Taverney 13, Le Grand-Saconnex, 1218 Le Grand-Saconnex",
+                "website": "https://www.consul.info/es/embassy-honduras-le-grand-saconnex",
+                "code": "hn"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.1196445,
+                    46.2300073
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "M\u00c3\u00a9xico",
+                "name": "Embajada de M\u00c3\u00a9xico en Suiza",
+                "address": "Weltpoststrasse 20, 3015 Berne\u00c2\u00a0",
+                "website": "http://embamex.sre.gob.mx/suiza/",
+                "code": "mx"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.476429,
+                    46.93754
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "M\u00c3\u00a9xico",
+                "name": "Consulado de M\u00c3\u00a9xico",
+                "address": "Rue de Candolle 16, 1205 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "https://www.embassypages.com/mexico-consulado-ginebra-suiza",
+                "code": "mx"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.144726,
+                    46.19813
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "M\u00c3\u00a9xico",
+                "name": "Consulado Honorario de M\u00c3\u00a9xico en Z\u00c3\u00barich",
+                "address": "T\u00c3\u00b6distrasse 16, 8002 Z\u00c3\u00bcrich\u00c2\u00a0",
+                "website": "https://www.embassypages.com/mexico-consulado-zurich-suiza",
+                "code": "mx"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.535737,
+                    47.365051
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "M\u00c3\u00a9xico",
+                "name": "Consulado de M\u00c3\u00a9xico",
+                "address": "Via Nassa/Via Dogana Vecchia 2, 6900 Lugano\u00c2\u00a0",
+                "website": "https://www.embassypages.com/mexico-consulado-lugano-suiza",
+                "code": "mx"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.950181,
+                    46.002926
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "M\u00c3\u00a9xico",
+                "name": "Consulado de M\u00c3\u00a9xico",
+                "address": "Neusatzweg 32, 4102 Binningen\u00c2\u00a0",
+                "website": "https://www.consulate-info.com/consulate/21052/Mexico-in-Basel",
+                "code": "mx"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    47.539759,
+                    47.539759
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Nicaragua",
+                "name": "Conbsulado General de Nicaragua en Ginebra",
+                "address": "Rue de Vermont 37 - 39, 1202 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "https://www.embassypages.com/nicaragua-consuladogeneral-ginebra-suiza",
+                "code": "ni"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.137203,
+                    46.218862
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Panam\u00c3\u00a1",
+                "name": "Conbsulado General de Panam\u00c3\u00a1 en Ginebra",
+                "address": "rue de Lausanne 72, 1202 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "https://www.embassypages.com/panama-consuladogeneral-ginebra-suiza",
+                "code": "pa"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.147492,
+                    46.215722
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Paraguay",
+                "name": "Embajada de la Rep\u00c3\u00bablica del Paraguay ante la Confederaci\u00c3\u00b3n Suiza",
+                "address": "Kramgasse 58, 3000 Berne 8\u00c2\u00a0",
+                "website": "https://www.embajadaparaguaysuiza.ch/",
+                "code": "py"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.449462,
+                    46.948079
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Paraguay",
+                "name": "Consulado de la Rep\u00c3\u00bablica del Paraguay",
+                "address": "Via Domenico Fontana 14, 6900 Lugano\u00c2\u00a0",
+                "website": "https://www.botschaft-konsulat.com/ch/Konsulate/12803/Paraguay-in-Lugano",
+                "code": "py"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.943337,
+                    45.992877
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Per\u00c3\u00ba",
+                "name": "Secci\u00c3\u00b3n consular de la Embajade del Per\u00c3\u00ba",
+                "address": "Thunstrasse 36, 3005 Berne\u00c2\u00a0",
+                "website": "http://www.embaperu.ch",
+                "code": "pe"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.455821,
+                    46.941251
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Per\u00c3\u00ba",
+                "name": "Embajada del Per\u00c3\u00ba",
+                "address": "Thunstrasse 36, 3005 Berne\u00c2\u00a0",
+                "website": "http://www.embaperu.ch",
+                "code": "pe"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.455821,
+                    46.941251
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Per\u00c3\u00ba",
+                "name": "Consulado General del Per\u00c3\u00ba en Ginebra",
+                "address": "Rue des Pierres-du-Niton 17, 1207 Gen\u00c3\u00a8ve\u00c2\u00a0",
+                "website": "http://www.conperginebra.ch",
+                "code": "pe"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    6.157145,
+                    46.203837
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Per\u00c3\u00ba",
+                "name": "Consulado General del Per\u00c3\u00ba en Z\u00c3\u00barich",
+                "address": "L\u00c3\u00b6wenstrasse 69, 8001 Z\u00c3\u00bcrich",
+                "website": "http://www.conperzurich.ch",
+                "code": "pe"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    8.538258,
+                    47.377244
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Uruguay",
+                "name": "Embajada de Uruguay en Berna",
+                "address": "Kramgasse 63, 3011 Berne\u00c2\u00a0",
+                "website": "https://www.infosuiza.com/embajada-de-uruguay-en-suiza/",
+                "code": "uy"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.449251,
+                    46.9478
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "consulado",
+                "country": "Uruguay",
+                "name": "Consulado de Uruguay",
+                "address": "Steinenring 15, 4051 B\u00c3\u00a2le\u00c2\u00a0",
+                "website": "https://www.embassypages.com/uruguay-embajada-berna-suiza",
+                "code": "uy"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.578684,
+                    47.552293
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "institution": "embajada\u00c2\u00a0",
+                "country": "Venezuela",
+                "name": "Embajada de Venezuela en Suiza",
+                "address": "Waldeggstrasse 47, 3097 Liebefeld\u00c2\u00a0",
+                "website": "http://suiza.embajada.gob.ve/",
+                "code": "ve"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    7.419439,
+                    46.932428
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,4297 @@
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>ClusterPies</title>
+  <link rel="stylesheet" href="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.css" />
+  <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css' rel='stylesheet' />
+</head>
+<style>
+#map {
+	width: 920px;
+	height: 680px;
+}
+
+/*Marker clusters*/
+.marker-cluster-pie g.arc{
+  fill-opacity: 1;
+}
+.marker-cluster-pie-label {
+  font-size: 14px;
+  font-weight: bold;
+  font-family: sans-serif;
+}
+
+/*Markers*/
+.marker {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+  border-radius:10px;
+  margin-top: -10px;
+  margin-left: -10px;
+  border-style: solid;
+  fill: #CCC;
+  stroke: #444;
+  background: #CCC;
+  border-color: #444;
+}
+.marker div{
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: sans-serif;
+}
+
+
+
+
+/*marker categories*/
+.category-ALCE{
+    fill: #d95f02;
+	stroke: #000;
+	background: #d95f02;
+	border-color: #000;
+
+}
+.category-A{
+    fill: #a6761d;
+	stroke: #000;
+	background: #a6761d;
+	border-color: #000;
+
+}
+.category-U{
+    fill: #7570b3;
+    stroke: #000;
+    background: #7570b3;
+    border-color: #000;
+
+}
+.category-DELE{
+    fill: #e6ab02;
+    stroke: #000;
+    background: #e6ab02;
+    border-color: #000;
+
+}
+.category-EP{
+  fill: #66a61e;
+  stroke: #000;
+  background: #66a61e;
+  border-color: #000;
+}
+.category-IDEM{
+    fill: #1b9e77;
+    stroke: #000;
+    background: #1b9e77;
+    border-color: #000;
+}
+.category-CDI{
+	fill: #e7298a;
+	stroke: #000;
+	background: #e7298a;
+	border-color: #000;
+}
+
+
+
+/*Popup*/
+.map-popup span.heading {
+  display: block;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.map-popup span.attribute {
+  display: block;
+}
+.map-popup span.label {
+  font-weight: bold;
+}
+
+
+
+
+.leaflet-control-overview {
+  margin-right: 10px !important;
+  margin-bottom: 10px !important;
+  border: 1px solid #bbb;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  }
+
+.leaflet-control-overview-map {
+  width: 200px;
+  height: 120px;
+  border: 5px solid white;
+  z-index: 1;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  }
+
+
+
+.cluster {
+	text-align: center;
+	background-color: #ffffff;
+	border-radius: 50%;
+	display: inline-block;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	border: 1px solid #000000;
+}
+
+
+.cluster-legend {
+	height: 15px;
+	width: 15px;
+	background-color: #ffffff;
+	border-radius: 50%;
+	display: inline-block;
+	border: 1px solid #000000;
+}
+
+.cluster-legend-text {
+	text-align: center;
+	transform: translate(-0%, -10%);
+}
+
+
+.dot {
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 1px solid #000000;
+}
+
+
+.legend.leaflet-control {
+	background-color: #ffffff;
+	border-radius: 10px;
+	padding: 10px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+
+}
+
+</style>
+<body>
+<script src="https://d19vzq90twjlae.cloudfront.net/leaflet-0.7.2/leaflet.js" charset="utf-8"></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js'></script>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+<div id="container">
+  <div id="map" />
+</div>
+
+<script>
+L.Control.StaticOverview = L.Control.extend({
+  options: {
+    position: 'bottomright'
+  },
+
+  // In order to keep the overview map in sync with the main map, each layer
+  // must have a 'name' attribute
+  //
+  // e.g. var osm = L.tileLayer('http://...', name: 'osm', attribution: ...)
+  initialize: function(layers, staticOptions) {
+    this._layers = layers;
+    this._currentBaseLayer = layers[0];
+
+	this._staticBounds = staticOptions.bounds;
+	this._staticZoom = staticOptions.zoom;
+	this._staticCenter = staticOptions.center;
+
+
+	// console.log('initialized', this._staticZoom);
+  },
+
+  onAdd: function(map) {
+    this._map = map;
+    this._initLayout();
+    this._update();
+
+	// console.log('onAdd');
+
+    map.on('moveend', this._update, this);
+    map.on('baselayerchange', this._changeBaseLayer, this);
+
+    return this._container;
+  },
+
+  onRemove: function(map) {
+    map.off('moveend', this._update, this);
+    map.off('baselayerchange', this._changeBaseLayer, this);
+  },
+
+  _initLayout: function() {
+
+	// define size of overview map
+	var ratio = 10;
+	var size = this._map.getSize();
+	this._width = size.x / ratio;
+	this._height = size.y / ratio;
+
+	// console.log('width', this._width, 'height', this._height);
+
+
+    var container = this._container = L.DomUtil.create('div', 'leaflet-control-overview'),
+        mapDiv    = L.DomUtil.create('div', 'leaflet-control-overview-map', container);
+
+    var overview = this._overview = new L.Map(mapDiv, {
+      layers:             [this._currentBaseLayer],
+      dragging:           false,
+      touchZoom:          false,
+      scrollWheelZoom:    false,
+      doubleClickZoom:    false,
+      boxZoom:            false,
+      zoomControl:        false,
+	  zoomSnap:				0,
+      attributionControl: false
+    });
+
+    var rectangle = this._rectangle = new L.Rectangle(this._map.getBounds(), {weight: 2, clickable: false, color: '#4183c4'});
+    overview.addLayer(rectangle);
+	setTimeout(function() { overview.invalidateSize(); });  // hack
+  },
+
+  _update: function() {
+    // var center = this._map.getCenter(), zoom = Math.max(this._map.getZoom() - 4, 0);
+    this._rectangle.setBounds(this._map.getBounds());
+    this._overview.fitBounds(this._staticBounds);
+	this._overview.setView(this._staticCenter, this._staticZoom-3);
+
+	// console.log('static options' , this._staticZoom);
+	// console.log('zoom overview', this._overview.getZoom());
+  },
+
+  _changeBaseLayer: function(e) {
+    var layer, name = e.layer.options.name;
+    for (var i = 0; i < this._layers.length; i++) {
+      layer = this._layers[i];
+      if (layer.options.name === name && this._currentBaseLayer.options.name !== name) {
+        this._overview.removeLayer(this._currentBaseLayer);
+        this._overview.addLayer(layer, true);
+        this._currentBaseLayer = layer;
+        break;
+      }
+    }
+	// console.log('change baselayer');
+  }
+});
+
+L.control.StaticOverview = function(layer, options) {
+  return new L.Control.StaticOverview(layer, options);
+};
+</script>
+
+
+
+
+
+
+<script>
+
+
+    var geojson = {
+       "type":"FeatureCollection",
+       "features":[
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":30,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.0457015,
+                   47.390434
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":38,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.600514,
+                   47.474485
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":71,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.309816,
+                   47.471368
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":66,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.605457,
+                   47.563638
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":67,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.588968,
+                   47.569927
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":43,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.568009,
+                   47.554149
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":51,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.580504,
+                   47.55137
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":69,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.453262,
+                   46.962709
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":76,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.398182,
+                   46.942431
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":33,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.421801,
+                   46.941233
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":68,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.243171,
+                   47.136855
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":25,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.060046,
+                   46.61791
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":39,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.863455,
+                   46.963041
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":23,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.129759,
+                   46.869476
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":64,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.350105,
+                   47.36591
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.853361,
+                   46.848149
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":41,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.150018,
+                   46.807646
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":22,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.390917,
+                   47.192832
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":59,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.831216,
+                   47.098034
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":27,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.778923,
+                   47.220372
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":29,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.509873,
+                   47.4119727
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":31,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.165608,
+                   47.389657
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":33,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.729904,
+                   47.48434
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":28,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.298626,
+                   47.07127
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":34,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.002274,
+                   47.009105
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":13,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.186068,
+                   46.729015
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":14,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.186681,
+                   42.240447
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":12,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.369089,
+                   47.280055
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":39,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.60971,
+                   47.517698
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":30,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.911685,
+                   47.348448
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":27,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.072885,
+                   47.40985
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.791722,
+                   47.553953
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":17,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.999504,
+                   47.154073
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":25,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.197352,
+                   47.223379
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.621445,
+                   46.753816
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":89,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.138611,
+                   46.177242
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":101,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.169431,
+                   46.201065
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":44,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.133753,
+                   46.217003
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":76,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.120834,
+                   46.204684
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":133,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.152125,
+                   46.20163
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":30,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.121117,
+                   46.183872
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":65,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.141027,
+                   46.207581
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":105,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.132712,
+                   46.205483
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":51,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.121885,
+                   46.217956
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":109,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.106768,
+                   46.194111
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":135,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.101724,
+                   46.190136
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":102,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.078969,
+                   46.238641
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":18,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.970852,
+                   46.318959
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":44,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.559033,
+                   46.522235
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":27,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.631711,
+                   46.510418
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":107,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.641435,
+                   46.521078
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.070748,
+                   46.101529
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.953052,
+                   46.259359
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":69,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.847609,
+                   46.459413
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":40,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.479847,
+                   46.511625
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":16,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.80086,
+                   46.671701
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":76,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.23758,
+                   46.381544
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":18,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.530999,
+                   46.731119
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":42,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.523975,
+                   46.611941
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":80,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.607359,
+                   46.53657
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":28,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.336794,
+                   46.460307
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":32,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.354732,
+                   46.235227
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":47,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.645358,
+                   46.769239
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":71,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.528959,
+                   47.313787
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":29,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.456217,
+                   47.278747
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":23,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.42111,
+                   47.50678
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":20,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.019388,
+                   46.196849
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":31,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.542208,
+                   47.519682
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":18,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.455665,
+                   47.481864
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":49,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.421287,
+                   47.39706
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":52,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.619654,
+                   47.403106
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":14,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.901195,
+                   47.553449
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":16,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.080071,
+                   47.43072
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":24,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.56798,
+                   47.43072
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":30,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.627911,
+                   47.415216
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":11,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.281506,
+                   47.390639
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":27,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.605578,
+                   47.245962
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":16,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.585723,
+                   47.445371
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":22,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.176495,
+                   47.645177
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":50,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.58225,
+                   47.320699
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":25,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.787883,
+                   46.162449
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":73,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.326302,
+                   47.061651
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":22,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.961685,
+                   46.014438
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":26,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.696742,
+                   47.254706
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":22,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.771335,
+                   47.19634
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":27,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.816584,
+                   47.241657
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":36,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.465221,
+                   47.434418
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":35,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.494509,
+                   47.475019
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":46,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.381344,
+                   47.429948
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":40,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.636544,
+                   47.699353
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":57,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.721961,
+                   47.348177
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":46,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.503653,
+                   47.155719
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":21,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.105809,
+                   47.561907
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":15,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.794161,
+                   47.324864
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":14,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.042173,
+                   47.464634
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":71,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.754827,
+                   47.48541
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":100,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.524279,
+                   47.171027
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":36,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.572102,
+                   47.407814
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":18,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.5103,
+                   47.368527
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":68,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.486965,
+                   47.372818
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":50,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.537723,
+                   47.395959
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"ALCE",
+                "total":29,
+                "name":"ALCE",
+                "type_abbr":"ALCE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.534378,
+                   47.370831
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Centro de idiomas ",
+                "total":400,
+                "name":"Sprachenzentrum der Universität Basel",
+                "type_abbr":"CDI"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.58285834556626,
+                   47.55823375
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Centro de idiomas ",
+                "total":692,
+                "name":"Sprachenzentrum UZH und ETH",
+                "type_abbr":"CDI"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.548333898386939,
+                   47.374782
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Centro de idiomas ",
+                "total":401,
+                "name":"Centre de langues de l'Université de Lausanne",
+                "type_abbr":"CDI"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.6327025,
+                   46.5218269
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Centro de idiomas ",
+                "total":32,
+                "name":"Maison des Langues, Université de Genève",
+                "type_abbr":"CDI"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.1426293,
+                   46.1997835
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":62,
+                "name":"Aarau",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.0444448,
+                   47.3927146
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":23,
+                "name":"Adliswil",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.52491,
+                   47.3117624
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":19,
+                "name":"Baden",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.3086822,
+                   47.4736827
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":70,
+                "name":"Bern",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.4514512,
+                   46.9482713
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":13,
+                "name":"Bulle",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.0581152,
+                   46.6190969
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":52,
+                "name":"Chur",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.5254066,
+                   46.855515
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":81,
+                "name":"Genf",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.1466014,
+                   46.2017559
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":43,
+                "name":"Lausanne",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.6327025,
+                   46.5218269
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":19,
+                "name":"Romanshorn",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.3776036,
+                   47.5654452
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":21,
+                "name":"Sierre",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.5323195,
+                   46.2922522
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":3,
+                "name":"Solothurn",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.5384045,
+                   47.2081355
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"DELE",
+                "total":43,
+                "name":"Zürich",
+                "type_abbr":"DELE"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.5423328,
+                   47.3723941
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":16,
+                "name":"Sek. Leonhard",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.587096,
+                   47.554153
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":7,
+                "name":"PS Drerosen",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.590152,
+                   47.570268
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":19,
+                "name":"CESCOLE",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.8635,
+                   46.963125
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":19,
+                "name":"CSLL",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.744495,
+                   47.055489
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":20,
+                "name":"CSRC",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.776014,
+                   46.899424
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":25,
+                "name":"CSVR",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.903888,
+                   47.062702
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":26,
+                "name":"EOCF",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.829154,
+                   47.103969
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":5,
+                "name":"EORÉN-Bas-Lac",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.001981,
+                   47.008384
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":12,
+                "name":"EOREN-Côte",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.891535,
+                   46.986398
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":5,
+                "name":"EOREN-2Thielles",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.063021,
+                   47.054752
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":25,
+                "name":"Eoren.Mail",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.950921,
+                   47.001328
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":10,
+                "name":"EOREN-Terreaux",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.931119,
+                   46.992798
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":11,
+                "name":"JJR",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.576553,
+                   46.90441
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":15,
+                "name":"Academia Engiadina",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.875156,
+                   46.536872
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":63,
+                "name":"Alte Kantonsschule Aarau",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.053272,
+                   47.393545
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":116,
+                "name":"Collège de Gambach",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.149927,
+                   46.807011
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":114,
+                "name":"Collège du Sud",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.054411,
+                   46.625197
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":56,
+                "name":"Collège St. Michel",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.158041,
+                   46.833985
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":64,
+                "name":"Collège Ste. Croix",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.158252,
+                   46.797366
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":106,
+                "name":"Ecole de culture générale Fribourg",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.147651,
+                   46.806169
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":15,
+                "name":"Fachmittelschule Zug (Fachmaturität)",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.515423,
+                   47.160613
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":27,
+                "name":"FMS Basel",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.605134,
+                   47.547344
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":14,
+                "name":"Freies Gymnasium Zuerich",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.554952,
+                   47.359603
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":59,
+                "name":"Gymnase Auguste Piccard",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.620731,
+                   46.511439
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":92,
+                "name":"Gymnase d’Yverdon ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.666471,
+                   46.780408
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":107,
+                "name":"Gymnase de Beaulieu ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.623124,
+                   46.527181
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":113,
+                "name":"Gymnase de Burier",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.877676,
+                   46.450291
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":46,
+                "name":"Gymnase de Chamblandes",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.658404,
+                   46.506576
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":71,
+                "name":"Gymnase de la Cité ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.634501,
+                   46.523567
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":76,
+                "name":"Gymnase de Morges ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.485026,
+                   46.517711
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":148,
+                "name":"Gymnase de Nyon",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.23165,
+                   46.38289
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":90,
+                "name":"Gymnase du Bugnon ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.640213,
+                   46.522628
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":118,
+                "name":"Gymnasium am Münsterplatz",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.591321,
+                   47.55645
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":55,
+                "name":"Gymnasium Bäumlihof",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.62669,
+                   47.567565
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":107,
+                "name":"Gymnasium Beaulieu ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.666648,
+                   46.746408
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":26,
+                "name":"Gymnasium Burgdorf",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.620738,
+                   47.05629
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":63,
+                "name":"Gymnasium Hofwil",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.462544,
+                   47.020343
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":26,
+                "name":"Gymnasium Immensee",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.454065,
+                   47.09305
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":24,
+                "name":"Gymnasium Interlaken",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.870406,
+                   46.684829
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":31,
+                "name":"Gymnasium Laufen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.506513,
+                   47.420727
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":129,
+                "name":"Gymnasium Leonhard",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.587422,
+                   47.554442
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":28,
+                "name":"Gymnasium Lerbermatt",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.434421,
+                   46.930533
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":164,
+                "name":"Gymnasium Liestal",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.725434,
+                   47.482011
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":106,
+                "name":"Gymnasium Münchenstein",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.616865,
+                   47.527268
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":59,
+                "name":"Gymnasium Muttenz",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.640899,
+                   47.533393
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":112,
+                "name":"Gymnasium Neufeld",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.428757,
+                   46.959738
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":100,
+                "name":"Gymnasium Oberwil",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.549806,
+                   47.523261
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":50,
+                "name":"Gymnasium St. Antonius ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.4095875,
+                   47.3311981
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":90,
+                "name":"Gymnasium Thun",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.628984,
+                   46.750763
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":36,
+                "name":"Kantonale Mittelschule Uri ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.650631,
+                   46.874722
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":123,
+                "name":"Kantonsschule Alpenquai Luzern",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.322006,
+                   47.043186
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":494,
+                "name":"Kantonsschule am Burggraben St.Gallen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.380205,
+                   47.425686
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":75,
+                "name":"Kantonsschule Ausserschwyz, Pfäffikon",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.788612,
+                   47.200359
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":122,
+                "name":"Kantonsschule Baden",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.314086,
+                   47.470328
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":27,
+                "name":"Kantonsschule Beromuenster",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.193097,
+                   47.209705
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":34,
+                "name":"Kantonsschule Bueelrain",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.730635,
+                   47.495428
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":70,
+                "name":"Kantonsschule Frauenfeld",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.903114,
+                   47.555199
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":67,
+                "name":"Kantonsschule Freudenberg",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.528511,
+                   47.365182
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":26,
+                "name":"Kantonsschule Glarus",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.065966,
+                   47.043653
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":95,
+                "name":"Kantonsschule Heerbrugg",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.629288,
+                   47.415823
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":15,
+                "name":"Kantonsschule Kollegium Schwyz",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.653466,
+                   47.02461
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":52,
+                "name":"Kantonsschule Kreuzlingen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.180094,
+                   47.648945
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":80,
+                "name":"Kantonsschule Kuesnacht",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.583271,
+                   47.31726
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":39,
+                "name":"Kantonsschule Menzingen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.585521,
+                   47.182278
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":8,
+                "name":"Kantonsschule Musegg",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.306069,
+                   47.054804
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":47,
+                "name":"Kantonsschule Reussbuehl Luzern",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.274676,
+                   47.063871
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":55,
+                "name":"Kantonsschule Romanshorn",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.371042,
+                   47.568387
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":120,
+                "name":"Kantonsschule Rychenberg",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.736977,
+                   47.505143
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":123,
+                "name":"Kantonsschule Sargans",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.43973,
+                   47.044169
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":106,
+                "name":"Kantonsschule Schaffhausen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.638222,
+                   47.699691
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":110,
+                "name":"Kantonsschule Stadelhofen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.549132,
+                   47.367705
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":125,
+                "name":"Kantonsschule Wattwil",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.087438,
+                   47.301291
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":102,
+                "name":"Kantonsschule Wettingen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.316028,
+                   47.456336
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":82,
+                "name":"Kantonsschule Wohlen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.270453,
+                   47.355857
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":41,
+                "name":"Kantonsschule Zofingen",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.942067,
+                   47.282572
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":208,
+                "name":"Kantonsschule Zuercher Unterland",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.547835,
+                   47.518263
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":292,
+                "name":"Kantonsschule Zuerich Nord",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.535157,
+                   47.408313
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":92,
+                "name":"Kantonsschule Zug ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.523679,
+                   47.174633
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":116,
+                "name":"Kollegium Gambach",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.149975,
+                   46.807418
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":71,
+                "name":"La Cité",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.634501,
+                   46.523567
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":48,
+                "name":"Liceo Cantonale di Bellinzona ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.01366,
+                   46.196676
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":56,
+                "name":"Liceo cantonale Locarno",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.787708,
+                   46.162983
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":128,
+                "name":"Liceo di Lugano I",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.960272,
+                   46.005167
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":68,
+                "name":"Liceo di Lugano II",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.940864,
+                   46.014608
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":59,
+                "name":"Liceo di Mendrisio",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.977794,
+                   45.863277
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":46,
+                "name":"Lycée Blaise-Cendras",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.808014,
+                   47.09591
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":94,
+                "name":"Lycée cantonal de Porrentruy",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.075995,
+                   47.414235
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":109,
+                "name":"Lycée Denis-de Rougemont",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.94021,
+                   46.994404
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":44,
+                "name":"Neue Kantonsschule Aarau ",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.0531,
+                   47.393968
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":58,
+                "name":"Renens",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.583946,
+                   46.005167
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":121,
+                "name":"Seeland Gymnasium Biel",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.235973,
+                   47.133411
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":4,
+                "name":"Wirtschaftsmittelschule Zug (Berufsmaturität)",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.510398,
+                   47.175532
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Instituto de ensenãnza media",
+                "total":54,
+                "name":"Wirtschaftsmittelschule (Thurgau)",
+                "type_abbr":"IDEM"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.460037,
+                   47.408394
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":90,
+                "name":"Universität Basel",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.58285834556626,
+                   47.55823375
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":120,
+                "name":"Universität Bern",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.4369187,
+                   46.9500782
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":39,
+                "name":"Université de Neuchâtel",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.938709,
+                   46.993852
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":111,
+                "name":"Universität Fribourg",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.152665,
+                   46.8062633
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":120,
+                "name":"Universität Genf",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.1426293,
+                   46.1997835
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":398,
+                "name":"Universität St. Gallen ",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   9.37459796162333,
+                   47.43176765
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":302,
+                "name":"Université de Lausanne",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   6.57407650067164,
+                   46.5289635
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":124,
+                "name":"Universität Zürich",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.548333898386939,
+                   47.374782
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Universidad",
+                "total":142,
+                "name":"CLC Centre for Languages and Communication (ZHAW)",
+                "type_abbr":"U"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   8.7204505,
+                   47.4999206
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":7,
+                "name":"PS Drerosen",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.588952,
+                   47.569836
+                ]
+             }
+          },
+          {
+             "type":"Feature",
+             "properties":{
+                "type":"Enseñanza primaria ",
+                "total":16,
+                "name":"Sek. Leonhard",
+                "type_abbr":"EP"
+             },
+             "geometry":{
+                "type":"Point",
+                "coordinates":[
+                   7.587021,
+                   47.554204
+                ]
+             }
+          }
+       ]
+    };
+
+
+	var categoryField = 'type_abbr', //This is the fieldname for marker category (used in the pie and legend)
+		colors = {
+			'ALCE': '#d95f02',
+			'CDI': '#e6ab02',
+			'DELE': '#e7298a',
+			'EP': '#66a61e',
+			'IDEM': '#7570b3',
+			'U': '#a6761d'
+		},
+		abbr2full = {
+			'ALCE': 'Agrupación de lengua y cultura española',
+			'CDI': 'Centro de idiomas',
+			'DELE': 'Diploma de español lengua extranjera',
+			'EP': 'Enseñanza primaria',
+			'IDEM': 'Instituto de ensenãnza media',
+			'U': 'Universidad'
+		}
+		popupFields = ['5065','5055','5074'], //Popup will display these fields
+		tileServer = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		tileAttribution = 'Map data: <a href="http://openstreetmap.org">OSM</a>',
+		rmax = 30, //Maximum radius for cluster pies
+		markerclusters = L.markerClusterGroup({
+		  maxClusterRadius: 2*rmax,
+		  iconCreateFunction: defineClusterIcon, //this is where the magic happens
+		  spiderfyOnMaxZoom: false,
+		  showCoverageOnHover: false,
+		  zoomToBoundsOnClick: false
+		}),
+		tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+			name: 'tileLayer',
+			attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+		}),
+		defaultMapCenter = [46.950, 8.22],
+		defaultMapZoom = 8,
+		prevMapZoom = defaultMapZoom,
+		map = L.map('map', {
+			layers: tileLayer,
+			center: defaultMapCenter,
+			zoom: defaultMapZoom,
+			zoomControl: false,
+			touchZoom: true,
+			// setting zoom restrictions
+			maxZoom: 18,
+			minZoom: defaultMapZoom
+		}),
+		bounds = map.getBounds();
+
+
+	map.on('drag', function() {
+	    map.panInsideBounds(bounds, { animate: false });
+	});
+
+	map.on('click', function(e) {
+		map.setView(defaultMapCenter, defaultMapZoom);
+	});
+
+	tileLayer.addTo(map);
+
+	//and the empty markercluster layer
+	map.addLayer(markerclusters);
+
+	var markers = L.geoJson(geojson, {
+	  	pointToLayer: defineFeature,
+	  	onEachFeature: defineFeaturePopup
+	});
+	markerclusters.addLayer(markers);
+
+
+	// define onClick even for clusters
+	// other options: clustermouseover, clustermouseout
+	markerclusters.on('clusterclick', function(cluster) {
+
+	  var markers,
+	      marker,
+	      name,
+	      names = [],
+	      popup,
+	      popupContent = '',
+	      i;
+
+		// first close all opened popups
+		map.closePopup();
+
+	  // looping over all markers and collection all names of institutions
+	  markers = cluster.layer.getAllChildMarkers();
+	  for (i = 0; i < markers.length; i++) {
+	    marker = markers[i];
+	    names.push(marker.feature.properties.name);
+	  };
+
+	  // alphabetically sorting names and concatenating together
+	  names.sort();
+	  for (i = 0; i < names.length; i++) {
+	    name = names[i];
+	    if (!(name === null)) {
+	      popupContent = popupContent + name + '<br>';
+	    };
+	  }
+
+
+
+	  popup = L.popup()
+			.setLatLng(cluster.layer.getLatLng())
+			.setContent(popupContent)
+	    .openOn(map);
+
+
+	});
+
+
+
+
+
+	addCategoryLegendToMap(map);
+
+	addSizeLegendToMap(map);
+
+	addMinimapToMap(map);
+
+	addScaleToMap(map);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function defineFeature(feature, latlng) {
+
+	// colors for different Bildung types
+	// generated with colorbrewer (http://colorbrewer2.org/#type=qualitative&scheme=Dark2&n=6)
+
+
+	var marker,
+	  minMarkerSize = 4,
+	  scaleFactor = 4,
+	  markerSize = feature.properties.total / scaleFactor;
+
+	markerSize = Math.max(minMarkerSize,markerSize);
+	// console.log(feature);
+	/*
+	marker =  L.circleMarker(latlng, {
+		radius: getRadius(feature.properties.total),
+		fillColor: colors[feature.properties.type_abbr],
+		// fillColor: '#e6ab02',
+		color: '#000000',
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 1
+	});
+	*/
+	marker =  L.circleMarker(latlng, {
+		radius: getRadius(feature.properties.total),
+		className: 'category-' +  feature.properties.type_abbr,
+		weight: 1,
+		opacity: 1,
+		fillOpacity: 1
+	});
+
+	// console.log(marker);
+
+	return marker;
+}
+
+function defineFeaturePopup(feature, layer) {
+
+  // marker = L.marker(latlng, {icon: blueIcon});
+  var popup = ''.concat(
+	  '<b>', feature.properties.name, '</b>',
+	  '<br>', feature.properties.type,
+	  '<br>', 'Número de estudiantes: ', feature.properties.total
+  );
+
+  // defining popup style for language data
+  var locationPopupOptions = {
+  	'maxWidth': '400',
+  	'width': '200',
+  	'className': 'popupCustom'
+  }
+
+
+  layer.bindPopup(popup, locationPopupOptions);
+
+
+}
+
+function defineClusterIcon(cluster) {
+    var children = cluster.getAllChildMarkers(),
+        nMarkers = children.length, // get number of markers in cluster
+		nStudents = children.reduce((t, e) => t + e.feature.properties.total, 0), // get the number of students in cluster
+		r = getRadius(nStudents), // get radius of pie chart based on number of students
+		strokeWidth = 1, //Set clusterpie stroke width
+        iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
+        data = d3.nest() //Build a dataset for the pie chart
+          .key(function(d) { return d.feature.properties[categoryField]; })
+          .entries(children, d3.map),
+        //bake some svg markup
+        html = bakeThePie({data: data,
+                            valueFunc: function(d){return d.values.reduce((t, e) => t + e.feature.properties.total, 0);},
+                            strokeWidth: 1,
+                            outerRadius: r,
+                            innerRadius: r-10,
+                            pieClass: 'cluster-pie',
+                            pieLabel: nMarkers,
+                            pieLabelClass: 'marker-cluster-pie-label',
+                            pathClassFunc: function(d){return "category-"+d.data.key;},
+                          }),
+        //Create a new divIcon and assign the svg markup to the html property
+        myIcon = new L.DivIcon({
+            html: html,
+            className: 'marker-cluster',
+            iconSize: new L.Point(iconDim, iconDim)
+        });
+
+
+    return myIcon;
+}
+
+/*function that generates a svg markup for the pie chart*/
+function bakeThePie(options) {
+    /*data and valueFunc are required*/
+    if (!options.data || !options.valueFunc) {
+        return '';
+    }
+    var data = options.data,
+        valueFunc = options.valueFunc,
+        r = options.outerRadius,
+		rMin = r > 5 ? r : 5,
+		rMinInner = 20,
+        rInner = r > rMinInner ? 10 : 0, //Default inner radius = r-10
+        strokeWidth = options.strokeWidth,
+        pathClassFunc = options.pathClassFunc,
+        pieClass = options.pieClass, //Class for the whole pie
+        pieLabel = options.pieLabel, //Label for the whole pie
+        pieLabelClass = options.pieLabelClass,//Class for the pie label
+        origo = (r+strokeWidth), //Center coordinate
+        w = origo*2, //width and height of the svg element
+        h = w,
+        donut = d3.layout.pie(),
+        arc = d3.svg.arc().innerRadius(rInner).outerRadius(r);
+
+	// console.log(data);
+	// data = data.sort((a, b) => (a.key > b.key) ? 1 : -1);
+
+
+    //Create an svg element
+    var svg = document.createElementNS(d3.ns.prefix.svg, 'svg');
+
+	// console.log(data);
+	//Create the pie chart
+    var vis = d3.select(svg)
+        .data([data])
+        .attr('class', pieClass)
+        .attr('width', w)
+        .attr('height', h);
+
+    var arcs = vis.selectAll('g.arc')
+        .data(donut.value(valueFunc))
+        .enter().append('svg:g')
+        .attr('class', 'arc')
+        .attr('transform', 'translate(' + origo + ',' + origo + ')');
+
+    arcs.append('svg:path')
+        .attr('class', pathClassFunc)
+        .attr('stroke-width', strokeWidth)
+        .attr('d', arc)
+        .append('svg:title')
+          .text('pathTitleFunc');
+
+	if (r > rMinInner) {
+		//Draw the Circle
+		vis.append("circle")
+			.attr("cx", 0)
+			.attr("cy", 0)
+			.attr("r", 10)
+			.attr("stroke", "black")
+			.attr('fill', 'white')
+			.attr('transform', 'translate(' + origo + ',' + origo + ')');;
+
+	    vis.append('text')
+	        .attr('x',origo)
+	        .attr('y',origo)
+	        .attr('class', pieLabelClass)
+	        .attr('text-anchor', 'middle')
+	        //.attr('dominant-baseline', 'central')
+	        /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
+	        .attr('dy','.3em')
+	        .text(pieLabel);
+	};
+
+    //Return the svg-markup rather than the actual element
+    return serializeXmlNode(svg);
+}
+
+/*Helper function*/
+function serializeXmlNode(xmlNode) {
+    if (typeof window.XMLSerializer != "undefined") {
+        return (new window.XMLSerializer()).serializeToString(xmlNode);
+    } else if (typeof xmlNode.xml != "undefined") {
+        return xmlNode.xml;
+    }
+    return "";
+}
+
+//calculate radius so that resulting circles will be proportional by area
+function getRadius(y) {
+	var r = Math.sqrt(y / Math.PI),
+		rMin = 5, // minimum radius of marker/pie chart
+		factor = 1.5,
+		rAdjusted = factor * r;
+	return Math.max(rMin, rAdjusted);
+};
+
+function addCategoryLegendToMap(map) {
+
+	var legendCategories = L.control({position: 'topleft'});
+	legendCategories.onAdd = function (map) {
+
+
+		var div = L.DomUtil.create('div','legend'),
+			labels = [],
+			categories = Object.keys(colors);
+		for (var i = 0; i < categories.length; i++) {
+			var key = categories[i];
+			labels.push(
+				'<div class="dot category-' + key + '"></div> ' + (key ? abbr2full[key] : '+')
+				// '<div class="dot" style="background:' + colors[key] + '"></div> ' + (key ? abbr2full[key] : '+')
+			);
+
+		}
+		div.innerHTML += labels.join('<br>');
+
+		return div;
+	};
+	legendCategories.addTo(map);
+
+};
+
+function addSizeLegendToMap(map) {
+
+
+	var legend = L.control({
+		position: 'bottomright'
+	});
+
+	legend.onAdd = function(map) {
+		var div = L.DomUtil.create('div', 'info legend');
+		div.innerHTML = '<strong>Número de estudiantes</strong>' +
+			'<div id="my_dataviz"></div>';
+
+
+		return div;
+	};
+
+	legend.addTo(map);
+
+
+	// append the svg object to the body of the page
+	var height = 110
+	var width = 160
+	var svg = d3.select('#my_dataviz')
+	  .append("svg")
+		.attr("width", width)
+		.attr("height", height)
+
+	// Add legend: circles
+	var valuesToShow = [20, 200, 2000]
+	// var radiusOfCircles = valuesToShow.map(getRadius)
+	var xCircle = 50
+	var xLabel = 110
+	var yCircle = 100
+	svg
+	  .selectAll("legend")
+	  .data(valuesToShow)
+	  .enter()
+	  .append("circle")
+		.attr("cx", xCircle)
+		.attr("cy", function(d){ return yCircle - getRadius(d) } )
+		.attr("r", function(d){ return getRadius(d) })
+		.style("fill", "none")
+		.attr("stroke", "black")
+
+	// Add legend: segments
+	svg
+	  .selectAll("legend")
+	  .data(valuesToShow)
+	  .enter()
+	  .append("line")
+		.attr('x1', function(d){ return xCircle } )
+		.attr('x2', xLabel)
+		.attr('y1', function(d){ return yCircle - 2 * getRadius(d) } )
+		.attr('y2', function(d){ return yCircle - 2 * getRadius(d) } )
+		.attr('stroke', 'black')
+		.style('stroke-dasharray', ('2,2'))
+
+	// Add legend: labels
+	svg
+	  .selectAll("legend")
+	  .data(valuesToShow)
+	  .enter()
+	  .append("text")
+		.attr('x', xLabel)
+		.attr('y', function(d){ return yCircle - 2 * getRadius(d) } )
+		.text( function(d){ return d } )
+		.style("font-size", 12)
+		.attr('alignment-baseline', 'middle')
+
+
+};
+
+function addMinimapToMap(map) {
+	var tileLayerMinimap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+		name: 'tileLayerMinimap',
+		attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+	});
+
+	var minimap = new L.control.StaticOverview([tileLayerMinimap],{zoom: defaultMapZoom, center: defaultMapCenter, bounds: bounds});
+	minimap.setPosition('topright');
+
+	map.addControl(minimap);
+};
+
+function addScaleToMap(map) {
+	L.control.scale({imperial: false}).addTo(map);
+};
+
+</script>

@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.0/css/ion.rangeSlider.min.css"/>
+
+
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js'></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.3.0/js/ion.rangeSlider.min.js"></script>
+
+
+		<style>
+
+			.content-wrapper {
+
+			}
+
+			#map3 {
+				width: 900px;
+				height: 600px;
+			}
+
+			.line {
+			  fill: none;
+			  stroke: steelblue;
+			  stroke-width: 2px;
+			}
+
+
+			.timeSlider-wrapper {
+				position: absolute;
+				top: 620px;
+				left: 10px;
+				width: 880px;
+			}
+
+			.info {
+			    padding: 6px 8px;
+			    font: 14px/16px Arial, Helvetica, sans-serif;
+			    background: white;
+			    background: rgba(255, 255, 255, 1);
+			    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+			    border-radius: 5px;
+			}
+			.info h4 {
+			    margin: 0 0 5px;
+			    color: #777;
+			}
+			.legend {
+			    text-align: left;
+			    line-height: 18px;
+			    color: #555;
+			}
+			.legend i {
+			    width: 18px;
+			    height: 18px;
+			    float: left;
+			    margin-right: 8px;
+			    opacity: 1;
+			}
+
+		</style>
+
+
+	</head>
+
+
+
+
+	<body>
+
+		<div id="map3"></div>
+		<div class="timeSlider-wrapper">
+			<input id="timeSlider" type="text" class="js-range-slider" name="my_range" value="" />
+		</div>
+
+		<script>
+
+
+		var data = {
+		   "type":"FeatureCollection",
+		   "features":[
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Universität Basel",
+		            "1988":25,
+		            "1989":23,
+		            "1990":23,
+		            "1991":26,
+		            "1992":35,
+		            "1993":38,
+		            "1994":44,
+		            "1995":45,
+		            "1996":46,
+		            "1997":40,
+		            "1998":33,
+		            "1999":28,
+		            "2000":29,
+		            "2001":33,
+		            "2002":30,
+		            "2003":34,
+		            "2004":41,
+		            "2005":40,
+		            "2006":20,
+		            "2007":22,
+		            "2008":20,
+		            "2009":18,
+		            "2010":9,
+		            "2011":7,
+		            "2012":6,
+		            "2013":5,
+		            "2014":8,
+		            "2015":5,
+		            "2016":5,
+		            "2017":4,
+		            "2018":2
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               7.58285834556626,
+		               47.55823375
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Universität Bern",
+		            "1988":28,
+		            "1989":27,
+		            "1990":31,
+		            "1991":36,
+		            "1992":35,
+		            "1993":38,
+		            "1994":40,
+		            "1995":39,
+		            "1996":42,
+		            "1997":41,
+		            "1998":36,
+		            "1999":36,
+		            "2000":33,
+		            "2001":39,
+		            "2002":32,
+		            "2003":43,
+		            "2004":44,
+		            "2005":45,
+		            "2006":48,
+		            "2007":50,
+		            "2008":53,
+		            "2009":60,
+		            "2010":64,
+		            "2011":52,
+		            "2012":57,
+		            "2013":60,
+		            "2014":53,
+		            "2015":59,
+		            "2016":45,
+		            "2017":45,
+		            "2018":40
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               7.4369187,
+		               46.9500782
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Université de Neuchâtel",
+		            "1988":21,
+		            "1989":20,
+		            "1990":26,
+		            "1991":25,
+		            "1992":35,
+		            "1993":30,
+		            "1994":34,
+		            "1995":29,
+		            "1996":41,
+		            "1997":46,
+		            "1998":42,
+		            "1999":46,
+		            "2000":44,
+		            "2001":41,
+		            "2002":45,
+		            "2003":48,
+		            "2004":48,
+		            "2005":34,
+		            "2006":23,
+		            "2007":27,
+		            "2008":27,
+		            "2009":19,
+		            "2010":19,
+		            "2011":13,
+		            "2012":13,
+		            "2013":10,
+		            "2014":13,
+		            "2015":15,
+		            "2016":16,
+		            "2017":15,
+		            "2018":15
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               6.938709,
+		               46.993852
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Université de Fribourg",
+		            "1988":16,
+		            "1989":19,
+		            "1990":20,
+		            "1991":19,
+		            "1992":21,
+		            "1993":23,
+		            "1994":30,
+		            "1995":24,
+		            "1996":24,
+		            "1997":21,
+		            "1998":29,
+		            "1999":32,
+		            "2000":39,
+		            "2001":33,
+		            "2002":35,
+		            "2003":39,
+		            "2004":38,
+		            "2005":42,
+		            "2006":50,
+		            "2007":61,
+		            "2008":70,
+		            "2009":73,
+		            "2010":76,
+		            "2011":70,
+		            "2012":69,
+		            "2013":68,
+		            "2014":60,
+		            "2015":57,
+		            "2016":60,
+		            "2017":60,
+		            "2018":53
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               7.152665,
+		               46.8062633
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Université de Genève",
+		            "1988":80,
+		            "1989":82,
+		            "1990":80,
+		            "1991":81,
+		            "1992":94,
+		            "1993":87,
+		            "1994":90,
+		            "1995":89,
+		            "1996":84,
+		            "1997":82,
+		            "1998":102,
+		            "1999":107,
+		            "2000":118,
+		            "2001":124,
+		            "2002":146,
+		            "2003":153,
+		            "2004":146,
+		            "2005":70,
+		            "2006":53,
+		            "2007":43,
+		            "2008":33,
+		            "2009":39,
+		            "2010":41,
+		            "2011":31,
+		            "2012":24,
+		            "2013":31,
+		            "2014":30,
+		            "2015":32,
+		            "2016":30,
+		            "2017":32,
+		            "2018":24
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               6.1426293,
+		               46.1997835
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Université de Lausanne",
+		            "1988":17,
+		            "1989":20,
+		            "1990":18,
+		            "1991":21,
+		            "1992":26,
+		            "1993":32,
+		            "1994":38,
+		            "1995":41,
+		            "1996":43,
+		            "1997":39,
+		            "1998":47,
+		            "1999":47,
+		            "2000":56,
+		            "2001":65,
+		            "2002":68,
+		            "2003":83,
+		            "2004":92,
+		            "2005":58,
+		            "2006":46,
+		            "2007":37,
+		            "2008":27,
+		            "2009":21,
+		            "2010":24,
+		            "2011":22,
+		            "2012":23,
+		            "2013":24,
+		            "2014":22,
+		            "2015":17,
+		            "2016":10,
+		            "2017":8,
+		            "2018":9
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               6.57407650067164,
+		               46.5289635
+		            ]
+		         }
+		      },
+		      {
+		         "type":"Feature",
+		         "properties":{
+		            "name":"Universität Zürich",
+		            "1988":101,
+		            "1989":100,
+		            "1990":108,
+		            "1991":96,
+		            "1992":104,
+		            "1993":105,
+		            "1994":86,
+		            "1995":67,
+		            "1996":85,
+		            "1997":88,
+		            "1998":88,
+		            "1999":90,
+		            "2000":96,
+		            "2001":99,
+		            "2002":101,
+		            "2003":111,
+		            "2004":134,
+		            "2005":144,
+		            "2006":147,
+		            "2007":149,
+		            "2008":139,
+		            "2009":119,
+		            "2010":124,
+		            "2011":112,
+		            "2012":107,
+		            "2013":109,
+		            "2014":100,
+		            "2015":83,
+		            "2016":71,
+		            "2017":54,
+		            "2018":49
+		         },
+		         "geometry":{
+		            "type":"Point",
+		            "coordinates":[
+		               8.548333898386939,
+		               47.374782
+		            ]
+		         }
+		      }
+		   ]
+	   	};
+
+
+		// time series slider to select the year to visualize on the map
+		var startYear = 1988, endYear = 2018;
+		var currYear = startYear;
+
+
+		// setting up new map2
+		var map3 = setupMap('map3');
+
+		// Add requested external GeoJSON to map
+		var uniMarkers = L.geoJson(data, {
+		  pointToLayer: function(feature, latlng) {
+			 var marker =  L.circleMarker(latlng, getMarkerStyle(10));
+			var popup = chart(feature);
+			// console.log(popup);
+			marker.bindPopup(popup, {maxWidth: 400});
+			return marker;
+		  }
+		})
+
+
+		uniMarkers.addTo(map3);
+
+
+
+		updateMarkers(currYear);
+
+		var $d = $("#timeSlider");
+
+		$d.ionRangeSlider({
+		  skin: "round",
+		  min: startYear,
+		  max: endYear,
+		  from: currYear,
+		  grid: true,
+		  grid_num: 5,
+		  prettify: function(year) { return year; }
+		});
+
+
+		$d.on("change", function () {
+		  var $inp = $(this);
+		  var currYear = $inp.prop("value"); // reading input value
+		  updateMarkers(currYear);
+		});
+
+
+		var legendControl = getLegendControl('my_dataviz','Number of students');
+		legendControl.addTo(map3);
+		addSizeLegend('#my_dataviz')
+
+
+
+		// function to update the marker sizes according to number of students
+		// of input year
+		function updateMarkers(year) {
+		  // console.log('updating marker to year ' + year);
+		  uniMarkers.eachLayer(function (e) {
+			var nStudents = e.feature.properties[year];
+			e.setStyle({radius: getRadius(nStudents)});
+		  });
+		}
+
+		function chart(feature) {
+			// console.log(feature);
+			var data = [],
+				parseTime = d3.timeParse("%Y"),
+				year;
+			for (year = startYear; year <= endYear; year++) {
+				data.push({
+					date: parseTime(year),
+					value: feature.properties[year]
+				});
+			};
+
+			// console.log(data);
+
+			  // set the dimensions and margins of the graph
+			var margin = {top: 40, right: 10, bottom: 20, left: 60},
+				width = 400 - margin.left - margin.right,
+				height = 180 - margin.top - margin.bottom;
+
+			var div = d3.create("div")
+			var svg = div.append("svg")
+					.attr("width", width + margin.left + margin.right)
+					.attr("height", height + margin.top + margin.bottom)
+				.append("g")
+					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+			// set the ranges
+			var xScale = d3.scaleTime()
+				.domain(d3.extent(data, function(d) { return d.date; }))
+				.range([0, width]);
+
+			// d3.max(data[oldSelected[0]], function(d) { return d.value; })
+			var yScale = d3.scaleLinear()
+				.domain([0, d3.max(data, function(d) { return d.value; }) ])
+				.range([height, 0]);
+
+
+			// Define the axes
+			var xAxis = d3.axisBottom().scale(xScale).ticks(5);
+			var yAxis = d3.axisLeft().scale(yScale).ticks(3);
+
+			// define the line
+			var valueline = d3.line()
+				.x(function(d) { return xScale(d.date); })
+				.y(function(d) { return yScale(d.value); });
+
+			// Add the X Axis
+			svg.append("g")
+				.attr("transform", "translate(0," + height + ")")
+				.style("font-size", "16px")
+				.call(xAxis);
+
+			// Add the Y Axis
+			svg.append("g")
+				.attr("class", "y axis")
+				.style("font-size", "16px")
+				.call(yAxis);
+
+			// Add the valueline path.
+			svg.append("path")
+				.attr("class", "line")
+				.attr("d", valueline(data))
+				.style("stroke", '#006CFA')
+
+
+			// text label for the y axis
+			svg.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("x", -65)
+				.attr("y", -60)
+				.attr("dy", "1em")
+				.style("text-anchor", "middle")
+				.style("font-size", "16px")
+				.text("N. de estudiantes");
+
+
+			var title = svg.append("text")
+				.style("font-size", "20px")
+				.text(feature.properties.name)
+				.attr("x", width/2)
+				.attr("y", -20)
+				.attr("text-anchor","middle");
+
+
+		  /*
+		  var width = 260;
+		  var height = 80;
+		  var margin = {left:40,right:20,top:40,bottom:40};
+		  var parse = d3.timeParse("%m");
+		  var format = d3.timeFormat("%b");
+
+		  var div = d3.create("div")
+		  var svg = div.append("svg")
+			.attr("width", width+margin.left+margin.right)
+			.attr("height", height+margin.top+margin.bottom);
+		  var g = svg.append("g")
+			.attr("transform","translate("+[margin.left,margin.top]+")");
+
+
+
+		  var y = d3.scaleLinear()
+			.domain([0, d3.max(data, function(d) { return d; }) ])
+			.range([height,0]);
+
+		  var yAxis = d3.axisLeft()
+			.ticks(4)
+			.scale(y);
+		  g.append("g").call(yAxis);
+
+		  //d3.range(startYear,endYear,5)
+		  var x = d3.scaleBand()
+			.domain(d3.range(endYear-startYear))
+			.range([0,width-20]);
+
+		  var xAxis = d3.axisBottom()
+		  	.ticks(5)
+			.scale(x)
+			.tickFormat(function(d) { return startYear+d; });
+
+
+
+
+
+		  g.append("g")
+			  .attr("transform", "translate(0," + height + ")")
+			  .call(xAxis)
+			  .selectAll("text")
+			  .attr("text-anchor","end")
+			  .attr("transform","rotate(-90)translate(-12,-15)")
+
+
+		  var rects = g.selectAll("rect")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("y",height)
+			.attr("height",0)
+			.attr("width", x.bandwidth()-2 )
+			.attr("x", function(d,i) { return x(i); })
+			.attr("fill",'#006CFA')
+			.transition()
+			.attr("height", function(d) { return height-y(d); })
+			.attr("y", function(d) { return y(d); });
+
+
+
+
+		  var title = svg.append("text")
+			.style("font-size", "20px")
+			.text(feature.properties.name)
+			.attr("x", width/2)
+			.attr("y", 30)
+			.attr("text-anchor","middle");
+
+*/
+
+		  	return div.node();
+
+		};
+
+
+		// function to return style for circle marker
+		function getMarkerStyle(size) {
+		  return {
+			  radius: getRadius(size),
+			  fillColor: '#006CFA',
+			  color: '#000000',
+			  weight: 1,
+			  opacity: 1,
+			  fillOpacity: 0.8
+		  };
+		};
+
+
+		// sets up a map of switzerland
+		function setupMap(div) {
+
+			// setting up base layer of map
+			var tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}', {
+				name: 'tileLayer',
+				attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC',
+				maxZoom: 16
+			});
+
+
+			// setting default map view
+			var defaultMapCenter = [46.75, 8.3];
+			var defaultMapZoom = 8;
+			var prevMapZoom = defaultMapZoom;
+
+			// initializing map
+			var map = L.map(div, {
+			layers: tileLayer,
+			center: defaultMapCenter,
+			zoom: defaultMapZoom,
+			zoomControl: false,
+			touchZoom: true,
+			// setting zoom restrictions
+			maxZoom: 18,
+			minZoom: defaultMapZoom
+			});
+
+			// setting panning restrictions
+			var bounds = map.getBounds();
+			// map.setMaxBounds(bounds);
+			map.on('drag', function() {
+			  map.panInsideBounds(bounds, { animate: false });
+			});
+
+			map.on('click', function(e) {
+				map.setView(defaultMapCenter, defaultMapZoom);
+			});
+
+
+			// adding tyle layer to our map
+			tileLayer.addTo(map);
+
+			// adding legend to map
+			L.control.scale({imperial: false}).addTo(map);
+
+			return map;
+		};
+
+
+		//calculate radius so that resulting circles will be proportional by area
+		function getRadius(y) {
+		    r = Math.sqrt(y / Math.PI)
+			r = r * 6;
+		    return r;
+		}
+
+		function getLegendControl() {
+
+
+			var legend = L.control({
+				position: 'bottomright'
+			});
+
+			legend.onAdd = function(map) {
+				var div = L.DomUtil.create('div', 'info legend');
+				div.innerHTML = '<strong>Número de estudiantes</strong>' +
+					'<div id="my_dataviz"></div>';
+
+
+				return div;
+			};
+
+
+			return legend;
+
+		};
+
+		function addSizeLegend(div){
+
+			// append the svg object to the body of the page
+			var height = 100
+			var width = 140
+			var svg = d3.select(div)
+			  .append("svg")
+				.attr("width", width)
+				.attr("height", height)
+
+			// The scale you use for bubble size
+			var size = d3.scaleSqrt()
+			  .domain([1, 100])  // What's in the data, let's say it is percentage
+			  .range([1, 100])  // Size in pixel
+
+			// Add legend: circles
+			var valuesToShow = [10, 100]
+			// var radiusOfCircles = valuesToShow.map(getRadius)
+			var xCircle = 40
+			var xLabel = 95
+			var yCircle = 90
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("circle")
+				.attr("cx", xCircle)
+				.attr("cy", function(d){ return yCircle - getRadius(d) } )
+				.attr("r", function(d){ return getRadius(d) })
+				.style("fill", "none")
+				.attr("stroke", "black")
+
+			// Add legend: segments
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("line")
+				.attr('x1', function(d){ return xCircle } )
+				.attr('x2', xLabel)
+				.attr('y1', function(d){ return yCircle - 2 * getRadius(d) } )
+				.attr('y2', function(d){ return yCircle - 2 * getRadius(d) } )
+				.attr('stroke', 'black')
+				.style('stroke-dasharray', ('2,2'))
+
+			// Add legend: labels
+			svg
+			  .selectAll("legend")
+			  .data(valuesToShow)
+			  .enter()
+			  .append("text")
+				.attr('x', xLabel)
+				.attr('y', function(d){ return yCircle - 2 * getRadius(d) } )
+				.text( function(d){ return d } )
+				.style("font-size", 12)
+				.attr('alignment-baseline', 'middle')
+
+
+		};
+
+
+
+		</script>
+
+
+	</body>
+
+</html>
